@@ -75,7 +75,7 @@ fun printUsageAndExit() {
 class Zoo(private val world: World, private val renderer: Renderer, private val input: Input) {
 
     companion object {
-        const val version = "0.5.1"
+        const val version = "0.5.2"
         const val defaultDelay = 50L
         val log: Logger = LoggerFactory.getLogger(Zoo::class.java)
         val json = Json { encodeDefaults = true }
@@ -89,8 +89,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
             if (world.context.survivors == world.context.blobs) streak++ else streak = 0
             if (((world.context.generations >= 0) && (world.context.generation >= world.context.generations))
                 || ((world.context.generations < 0) && (streak > 23))) {
-                val context = json.encodeToString(world.context).replace("\"", "\\\"")
-                log.info("-c $context -g ${world.population.blobs.firstOrNull()?.brain?.genom ?: ""}")
+                world.logFirstGenom()
                 repeat(3) { Toolkit.getDefaultToolkit().beep() }
                 world.context.delay = 50L
                 render = true
@@ -110,6 +109,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
                     Input.Key.Skip -> fastForward = true
                     Input.Key.Pause -> input.read()
                     Input.Key.Endless -> world.context.generations = -1
+                    Input.Key.Log -> world.logFirstGenom()
                     Input.Key.New -> return true
                     Input.Key.Esc -> return false
                 }
@@ -129,6 +129,11 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
             world.init(remainingPopulation.reproduce(world))
         }
         return (input.read() != Input.Key.Esc)
+    }
+
+    private fun World.logFirstGenom() {
+        val context = json.encodeToString(world.context).replace("\"", "\\\"")
+        log.info("-c $context -g ${population.blobs.firstOrNull()?.brain?.genom ?: ""}")
     }
 }
 

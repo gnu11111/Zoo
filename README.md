@@ -17,7 +17,7 @@ Build with Apache Maven:
 Run in a Java Runtime:
 
 ```
-USAGE: java -jar target/zoo-0.5.1-SNAPSHOT-jar-with-dependencies.jar [-c <context>] [-g <genom>] [-d <delay>] [-?]
+USAGE: java -jar target/zoo-0.5.2-SNAPSHOT-jar-with-dependencies.jar [-c <context>] [-g <genom>] [-d <delay>] [-?]
 
     -c <context> ... always use this context
     -g <genom>   ... use this genom as starting-point for every simulation
@@ -32,6 +32,7 @@ Use the following keys to control the simulation:
     <Arrow-Down>        Rendering on/off (toggle)
     S                   Skip to the end of the current generation
     P                   Pause the simulation (toggle)
+    L                   Log world context and genom of the first blob
     N, <Enter>, <Space> Start the next (random) simulation
     X, Q, <Esc>         Exit the programm
 ```

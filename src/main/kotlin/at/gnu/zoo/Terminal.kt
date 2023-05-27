@@ -160,6 +160,7 @@ class Terminal(size: Size) : Renderer, Input {
             (key?.character == 'e') -> Input.Key.Endless
             (key?.character == 'p') -> Input.Key.Pause
             (key?.character == 's') -> Input.Key.Skip
+            (key?.character == 'l') -> Input.Key.Log
             ((key?.character == 'q') || (key?.character == 'x') || (key?.keyType == Escape)) -> Input.Key.Esc
             ((key?.character == 'n') || (key?.character == ' ') || (key?.keyType == Enter)) -> Input.Key.New
             else -> Input.Key.None
