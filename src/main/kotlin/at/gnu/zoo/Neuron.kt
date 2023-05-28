@@ -36,7 +36,7 @@ class InnerNeuron(private val id: Int = 0) : Neuron(1) {
 sealed class Sensor : Neuron() {
     companion object {
         private val sensors = listOf(Oszillator, Age, DistanceFromEastBorder, DistanceFromWestBorder,
-            DistanceFromNorthBorder, DistanceFromSouthBorder, PopulationForward)
+            DistanceFromNorthBorder, DistanceFromSouthBorder, PopulationForward, WallForward)
         fun of(index: Int): Sensor =
             sensors[index % sensors.size]
     }
@@ -47,7 +47,7 @@ sealed class Sensor : Neuron() {
 sealed class Action : Neuron() {
     companion object {
         private val actions = listOf(Move(), MoveRandomly(), MoveEast(), MoveWest(), MoveNorth(), MoveSouth(),
-            TurnRight(), TurnLeft(), TurnRandomly())
+            TurnRight(), TurnLeft(), TurnAround(), TurnRandomly())
         fun of(index: Int): Action =
             actions[index % actions.size].clone()
     }

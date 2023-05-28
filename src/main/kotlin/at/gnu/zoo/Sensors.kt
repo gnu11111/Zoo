@@ -62,3 +62,15 @@ object PopulationForward : Sensor() {
 
     override fun toString() = "PopulationForward:$power"
 }
+
+object WallForward : Sensor() {
+
+    override fun calculatePower(world: World, blob: Blob): Int {
+        for (i in 1..8)
+            if (world.isWall(blob.position.x + (i * blob.heading.dx), blob.position.y + (i * blob.heading.dy)))
+                return setAndGetPower((9 - i) * 4)
+        return setAndGetPower(0)
+    }
+
+    override fun toString() = "WallForward:$power"
+}

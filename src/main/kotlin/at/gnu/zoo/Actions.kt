@@ -79,9 +79,20 @@ class TurnRight : Action() {
     override fun toString() = "TurnRight:$power"
 }
 
+class TurnAround : Action() {
+    override fun apply(world: World, blob: Blob) {
+        blob.heading.dx = -blob.heading.dx
+        blob.heading.dy = -blob.heading.dy
+    }
+
+    override fun clone() = TurnAround()
+    override fun toString() = "TurnAround:$power"
+}
+
 class TurnRandomly : Action() {
     override fun apply(world: World, blob: Blob) =
         when {
+            (Random.nextInt(3) > 1) -> { blob.heading.dx = -blob.heading.dx; blob.heading.dy = -blob.heading.dy }
             (blob.heading.dx != 0) -> { blob.heading.dx = 0; blob.heading.dy = Heading.randomDirection() }
             else -> { blob.heading.dx = Heading.randomDirection(); blob.heading.dy = 0 }
         }
