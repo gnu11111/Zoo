@@ -110,7 +110,6 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
             if (world.context.survivors == world.context.blobs) streak++ else streak = 0
             if (((world.context.generations >= 0) && (world.context.generation >= world.context.generations))
                 || ((world.context.generations < 0) && (streak > 23))) {
-                world.logFirstGenom()
                 if (!quiet) Toolkit.getDefaultToolkit().beep()
                 world.context.delay = 50L
                 render = true

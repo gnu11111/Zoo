@@ -20,9 +20,8 @@ data class Population(val blobs: List<Blob> = emptyList()) {
         return Population(population)
     }
 
-    fun killPopulation(world: World): Population {
-        return Population(blobs.filter { !world.isKillarea(it.position.x, it.position.y) })
-    }
+    fun killPopulation(world: World): Population =
+        Population(blobs.filter { !world.isKillarea(it.position.x, it.position.y) })
 
     private fun List<Blob>.createOffspring(world: World, mutationRate: Int): Blob {
         val position = Position.randomPosition(world)
