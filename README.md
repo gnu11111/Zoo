@@ -17,11 +17,12 @@ Build with Apache Maven:
 Run in a Java Runtime:
 
 ```
-USAGE: java -jar target/zoo-0.5.2-SNAPSHOT-jar-with-dependencies.jar [-c <context>] [-g <genom>] [-d <delay>] [-?]
+USAGE: java -jar target/zoo-0.6.0-SNAPSHOT-jar-with-dependencies.jar [-c <context>] [-g <genom>] [-d <delay>] [-q] [-?]
 
     -c <context> ... always use this context
     -g <genom>   ... use this genom as starting-point for every simulation
     -d <delay>   ... delay between steps for first simulation [ms]
+    -q           ... quiet mode, do not ping
 ```
 
 Use the following keys to control the simulation:

@@ -47,11 +47,12 @@ fun main(args: Array<String>) {
 
 fun printUsageAndExit() {
     println("""
-        USAGE: java -jar zoo-${Zoo.version}.jar [-c <context>] [-g <genom>] [-d <delay>]
+        USAGE: java -jar zoo-${Zoo.version}.jar [-c <context>] [-g <genom>] [-d <delay>] [-q] [-?]
         
             -c <context> ... always use this context
             -g <genom>   ... use this genom as starting-point for every simulation
             -d <delay>   ... delay between steps for first simulation [ms]
+            -q           ... quiet mode, do not ping
     """.trimIndent())
     exitProcess(0)
 }
