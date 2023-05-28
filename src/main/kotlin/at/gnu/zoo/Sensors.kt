@@ -48,3 +48,17 @@ object DistanceFromSouthBorder : Sensor() {
 
     override fun toString() = "DistanceFromSouthBorder:$power"
 }
+
+object PopulationForward : Sensor() {
+
+    override fun calculatePower(world: World, blob: Blob): Int {
+        val power = (1..8).fold(0) { acc, i ->
+            val x = blob.position.x + (i * blob.heading.dx)
+            val y = blob.position.y + (i * blob.heading.dy)
+            acc + if (world.isBlob(x, y)) 4 else 0
+        }
+        return setAndGetPower(power)
+    }
+
+    override fun toString() = "PopulationForward:$power"
+}

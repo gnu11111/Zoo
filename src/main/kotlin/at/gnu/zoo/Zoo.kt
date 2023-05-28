@@ -75,7 +75,7 @@ fun printUsageAndExit() {
 class Zoo(private val world: World, private val renderer: Renderer, private val input: Input) {
 
     companion object {
-        const val version = "0.5.2"
+        const val version = "0.6.0"
         const val defaultDelay = 50L
         val log: Logger = LoggerFactory.getLogger(Zoo::class.java)
         val json = Json { encodeDefaults = true }
@@ -105,7 +105,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
                     Input.Key.Right -> world.context.delay = max(0, world.context.delay - 25)
                     Input.Key.Left -> world.context.delay = min(225, world.context.delay + 25)
                     Input.Key.Up -> if (render) render = false else { render = true; fastForward = true }
-                    Input.Key.Down -> { silent = !silent }
+                    Input.Key.Down -> { silent = !silent; renderer.init(world) }
                     Input.Key.Skip -> fastForward = true
                     Input.Key.Pause -> input.read()
                     Input.Key.Endless -> world.context.generations = -1

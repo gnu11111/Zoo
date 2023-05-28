@@ -52,3 +52,40 @@ class MoveSouth : Action() {
     override fun clone() = MoveSouth()
     override fun toString() = "MoveSouth:$power"
 }
+
+class TurnLeft : Action() {
+    override fun apply(world: World, blob: Blob) =
+        when {
+            ((blob.heading.dx == 1) && (blob.heading.dy == 0)) -> { blob.heading.dx = 0; blob.heading.dy = -1 }
+            ((blob.heading.dx == 0) && (blob.heading.dy == -1)) -> { blob.heading.dx = -1; blob.heading.dy = 0 }
+            ((blob.heading.dx == -1) && (blob.heading.dy == 0)) -> { blob.heading.dx = 0; blob.heading.dy = 1 }
+            else -> { blob.heading.dx = 1; blob.heading.dy = 0 }
+        }
+
+    override fun clone() = TurnLeft()
+    override fun toString() = "TurnLeft:$power"
+}
+
+class TurnRight : Action() {
+    override fun apply(world: World, blob: Blob) =
+        when {
+            ((blob.heading.dx == 1) && (blob.heading.dy == 0)) -> { blob.heading.dx = 0; blob.heading.dy = 1 }
+            ((blob.heading.dx == 0) && (blob.heading.dy == 1)) -> { blob.heading.dx = -1; blob.heading.dy = 0 }
+            ((blob.heading.dx == -1) && (blob.heading.dy == 0)) -> { blob.heading.dx = 0; blob.heading.dy = -1 }
+            else -> { blob.heading.dx = 1; blob.heading.dy = 0 }
+        }
+
+    override fun clone() = TurnRight()
+    override fun toString() = "TurnRight:$power"
+}
+
+class TurnRandomly : Action() {
+    override fun apply(world: World, blob: Blob) =
+        when {
+            (blob.heading.dx != 0) -> { blob.heading.dx = 0; blob.heading.dy = Heading.randomDirection() }
+            else -> { blob.heading.dx = Heading.randomDirection(); blob.heading.dy = 0 }
+        }
+
+    override fun clone() = TurnRandomly()
+    override fun toString() = "TurnRandomly:$power"
+}

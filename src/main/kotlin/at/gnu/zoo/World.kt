@@ -72,6 +72,10 @@ class World(val context: Context) {
         (area.getOrNull(y)?.getOrNull(x) ?: EMPTY) == WALL
 
     @Synchronized
+    fun isBlob(x: Int, y: Int): Boolean =
+        (area.getOrNull(y)?.getOrNull(x) ?: EMPTY) == BLOB
+
+    @Synchronized
     fun isKillarea(x: Int, y: Int): Boolean =
         (killArea.getOrNull(y)?.getOrNull(x) ?: 0) == 1
 
