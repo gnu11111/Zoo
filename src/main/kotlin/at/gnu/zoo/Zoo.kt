@@ -17,28 +17,17 @@ import kotlin.system.exitProcess
 fun main(args: Array<String>) {
     val arguments = parseArguments(args)
     if (arguments["-?"] != null) printUsageAndExit()
+    val quiet = (arguments["-q"] != null)
+    val delay = arguments["-d"]?.firstOrNull()?.toLongOrNull() ?: Zoo.defaultDelay
+    val genom = arguments.getGenom()
+    val innerNeurons = genom?.drop(2)?.take(2)?.toInt(16) ?: (2 + (2 * Random.nextInt(5)))
+    val genomSize = if (genom != null) (genom.length - 4) / Brain.geneSize else 5 + (5 * Random.nextInt(5))
     val renderer = Terminal(Size(80, 40))
+    val size = renderer.open()
+    val defaultContext = arguments.getDefaultContext(delay, size)
     do {
-        val delay = arguments["-d"]?.firstOrNull()?.toLongOrNull() ?: Zoo.defaultDelay
-        val genom = arguments["-g"]?.firstOrNull()
-        val version = genom?.take(2)
-        if ((version != null) && !Zoo.version.replace(".", "").startsWith(version)) {
-            println("Incompatible genom-version, exiting! genom-version: $version, program-version: ${Zoo.version}")
-            exitProcess(-1)
-        }
-        val innerNeurons = genom?.drop(2)?.take(2)?.toInt(16) ?: (2 + (2 * Random.nextInt(5)))
-        val genomSize = if (genom != null) (genom.length - 4) / Brain.geneSize else 5 + (5 * Random.nextInt(5))
-        val contextString = arguments["-c"]?.firstOrNull()
-        val context = if (contextString != null)
-            Json.decodeFromString<Context>(contextString).apply {
-                generation = 0
-                survivors = 0
-                mutations = 0
-                this.delay = delay
-                size = renderer.open()
-            }
-        else
-            Context(
+        val context = defaultContext
+            ?: Context(
                 version = Zoo.version,
                 generations = -1, // 100 + (100 * Random.nextInt(50)),
                 lifetime = 50 + (5 * Random.nextInt(50)),
@@ -48,16 +37,11 @@ fun main(args: Array<String>) {
                 killZone = KillZone.randomType(),
                 walls = Walls.randomType(),
                 delay = delay,
-                size = renderer.open()
+                size = size
             )
-        if (context.version != Zoo.version) {
-            println("Incompatible context-version, exiting! context-version: ${context.version}, " +
-                    "program-version: ${Zoo.version}")
-            exitProcess(-1)
-        }
         val world = World(context)
-        val zoo = Zoo(world.init(Population.randomPopulation(world, genom)), renderer, renderer)
-    } while (zoo.run())
+        val zoo = Zoo(world.init(Population.randomPopulation(world, genom)), renderer, renderer, quiet)
+    } while (zoo.run() && (genom == null))
     renderer.close()
 }
 
@@ -72,7 +56,43 @@ fun printUsageAndExit() {
     exitProcess(0)
 }
 
-class Zoo(private val world: World, private val renderer: Renderer, private val input: Input) {
+private fun Map<String, List<String>>.getGenom(): String? {
+    val genom = this["-g"]?.firstOrNull()
+    val version = genom?.take(2)
+    if ((version != null) && !Zoo.version.replace(".", "").startsWith(version)) {
+        println("Incompatible genom-version, exiting! genom-version: $version, program-version: ${Zoo.version}")
+        exitProcess(-1)
+    }
+    return genom
+}
+
+private fun Map<String, List<String>>.getDefaultContext(delay: Long, size: Size): Context? {
+    val contextString = this["-c"]?.firstOrNull()
+    if (contextString != null) {
+        try {
+            val defaultContext = Json.decodeFromString<Context>(contextString).apply {
+                generation = 0
+                survivors = 0
+                mutations = 0
+                this.delay = delay
+                this.size = size
+            }
+            if (defaultContext.version != Zoo.version) {
+                println("Incompatible context-version, exiting! context-version: ${defaultContext.version}, " +
+                        "program-version: ${Zoo.version}")
+                exitProcess(-3)
+            }
+            return defaultContext
+        } catch (e: Exception) {
+            println("Unable to parse context: '$contextString'")
+            exitProcess(-2)
+        }
+    }
+    return null
+}
+
+class Zoo(private val world: World, private val renderer: Renderer, private val input: Input,
+          private val quiet: Boolean) {
 
     companion object {
         const val version = "0.6.0"
@@ -90,7 +110,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
             if (((world.context.generations >= 0) && (world.context.generation >= world.context.generations))
                 || ((world.context.generations < 0) && (streak > 23))) {
                 world.logFirstGenom()
-                repeat(3) { Toolkit.getDefaultToolkit().beep() }
+                if (!quiet) Toolkit.getDefaultToolkit().beep()
                 world.context.delay = 50L
                 render = true
                 silent = false
