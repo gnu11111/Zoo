@@ -31,7 +31,7 @@ fun main(args: Array<String>) {
                 version = Zoo.version,
                 generations = -1, // 100 + (100 * Random.nextInt(50)),
                 lifetime = 50 + (5 * Random.nextInt(50)),
-                blobs = 50 + (5 * Random.nextInt(50)),
+                blobs = 50 + (5 * Random.nextInt(size.maxX * size.maxY / 64)),
                 genomSize = genomSize,
                 innerNeurons = innerNeurons,
                 killZone = KillZone.randomType(),
@@ -96,7 +96,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
           private val quiet: Boolean) {
 
     companion object {
-        const val version = "0.6.0"
+        const val version = "0.6.1"
         const val defaultDelay = 50L
         val log: Logger = LoggerFactory.getLogger(Zoo::class.java)
         val json = Json { encodeDefaults = true }
