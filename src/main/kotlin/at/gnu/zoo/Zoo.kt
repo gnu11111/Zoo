@@ -148,7 +148,11 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
             world.context.generation++
             world.init(remainingPopulation.reproduce(world))
         }
-        return (input.read() != Input.Key.Esc)
+        return when (input.read()) {
+            Input.Key.Log -> true.also { world.logFirstGenom() }
+            Input.Key.Esc -> false
+            else -> true
+        }
     }
 
     private fun World.logFirstGenom() {
