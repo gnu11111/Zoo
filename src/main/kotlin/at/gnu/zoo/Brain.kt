@@ -2,7 +2,7 @@ package at.gnu.zoo
 
 import kotlin.random.Random
 
-data class Brain(val genom: String) {
+class Brain(val genom: String) {
 
     data class Connection(val from: Neuron, val to: Neuron, val weight: Int)
 

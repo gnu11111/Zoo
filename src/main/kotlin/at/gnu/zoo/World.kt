@@ -10,7 +10,7 @@ class World(val context: Context) {
     var population: Population = Population()
     val area = Array(context.size.maxY) { IntArray(context.size.maxX) }
 
-    private val killArea = Array(context.size.maxY) { IntArray(context.size.maxX) }
+    private val killZoneArea = Array(context.size.maxY) { IntArray(context.size.maxX) }
     private var oszillatorIncrement = -1
 
     enum class Walls {
@@ -29,7 +29,7 @@ class World(val context: Context) {
 
     init {
         area.createWalls(context.walls)
-        killArea.createFor(context.killZone)
+        killZoneArea.createForType(context.killZone)
     }
 
     @Synchronized
@@ -77,7 +77,7 @@ class World(val context: Context) {
 
     @Synchronized
     fun isKillarea(x: Int, y: Int): Boolean =
-        (killArea.getOrNull(y)?.getOrNull(x) ?: 0) == 1
+        (killZoneArea.getOrNull(y)?.getOrNull(x) ?: 0) == 1
 
     @Synchronized
     fun freeSpots(): Int =
@@ -109,10 +109,10 @@ class World(val context: Context) {
         }
     }
 
-    private fun Array<IntArray>.createFor(killType: KillZone) {
+    private fun Array<IntArray>.createForType(killZone: KillZone) {
         val yMax = this.size
         val xMax = this[0].size
-        when (killType) {
+        when (killZone) {
             WesternHalf -> indices.forEach { y ->
                 (0 until xMax).forEach { x -> this[y][x] = if (x < (xMax / 2)) 1 else 0 }
             }
@@ -160,6 +160,7 @@ class World(val context: Context) {
         const val EMPTY = 0
         const val WALL = 1
         const val BLOB = 2
+
         fun randomWorld(context: Context = Context(Zoo.version)): World {
             val world = World(context)
             world.init(Population.randomPopulation(world))

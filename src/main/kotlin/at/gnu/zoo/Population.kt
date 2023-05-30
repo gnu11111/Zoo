@@ -3,7 +3,7 @@ package at.gnu.zoo
 import kotlin.math.min
 import kotlin.random.Random
 
-data class Population(val blobs: List<Blob> = emptyList()) {
+class Population(val blobs: List<Blob> = emptyList()) {
 
     fun reproduce(world: World): Population {
         val mutationRate = (100 * (world.context.blobs - world.context.survivors)) / world.context.blobs

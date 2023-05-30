@@ -3,7 +3,7 @@ package at.gnu.zoo
 import java.awt.Color
 import kotlin.random.Random
 
-data class Blob(val brain: Brain, val position: Position = Position(0, 0)) {
+class Blob(val brain: Brain, val position: Position = Position(0, 0)) {
 
     val color = brain.getColor()
     val heading = Heading.randomHeading()
@@ -19,7 +19,7 @@ data class Blob(val brain: Brain, val position: Position = Position(0, 0)) {
     }
 }
 
-data class Position(var x: Int, var y: Int) {
+class Position(var x: Int, var y: Int) {
 
     companion object {
         fun randomPosition(world: World): Position {

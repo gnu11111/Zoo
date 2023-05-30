@@ -45,53 +45,6 @@ fun main(args: Array<String>) {
     renderer.close()
 }
 
-fun printUsageAndExit() {
-    println("""
-        USAGE: java -jar zoo-${Zoo.version}.jar [-c <context>] [-g <genom>] [-d <delay>] [-q] [-?]
-        
-            -c <context> ... always use this context
-            -g <genom>   ... use this genom as starting-point for every simulation
-            -d <delay>   ... delay between steps for first simulation [ms]
-            -q           ... quiet mode, do not ping
-    """.trimIndent())
-    exitProcess(0)
-}
-
-private fun Map<String, List<String>>.getGenom(): String? {
-    val genom = this["-g"]?.firstOrNull()
-    val version = genom?.take(2)
-    if ((version != null) && !Zoo.version.replace(".", "").startsWith(version)) {
-        println("Incompatible genom-version, exiting! genom-version: $version, program-version: ${Zoo.version}")
-        exitProcess(-1)
-    }
-    return genom
-}
-
-private fun Map<String, List<String>>.getDefaultContext(delay: Long, size: Size): Context? {
-    val contextString = this["-c"]?.firstOrNull()
-    if (contextString != null) {
-        try {
-            val defaultContext = Json.decodeFromString<Context>(contextString).apply {
-                generation = 0
-                survivors = 0
-                mutations = 0
-                this.delay = delay
-                this.size = size
-            }
-            if (defaultContext.version != Zoo.version) {
-                println("Incompatible context-version, exiting! context-version: ${defaultContext.version}, " +
-                        "program-version: ${Zoo.version}")
-                exitProcess(-3)
-            }
-            return defaultContext
-        } catch (e: Exception) {
-            println("Unable to parse context: '$contextString'")
-            exitProcess(-2)
-        }
-    }
-    return null
-}
-
 class Zoo(private val world: World, private val renderer: Renderer, private val input: Input,
           private val quiet: Boolean) {
 
@@ -181,6 +134,18 @@ data class Context(
 @Serializable
 data class Size(val maxX: Int, val maxY: Int)
 
+private fun printUsageAndExit() {
+    println("""
+        USAGE: java -jar zoo-${Zoo.version}.jar [-c <context>] [-g <genom>] [-d <delay>] [-q] [-?]
+        
+            -c <context> ... always use this context
+            -g <genom>   ... use this genom as starting-point for every simulation
+            -d <delay>   ... delay between steps for first simulation [ms]
+            -q           ... quiet mode, do not ping
+    """.trimIndent())
+    exitProcess(0)
+}
+
 private fun parseArguments(args: Array<String>): Map<String, List<String>> =
     args.fold<String, Pair<Map<String, List<String>>, String>>(Pair(emptyMap(), "")) { (map, lastKey), arg ->
         if (arg.startsWith("-"))
@@ -188,3 +153,38 @@ private fun parseArguments(args: Array<String>): Map<String, List<String>> =
         else
             Pair(map + (lastKey to map.getOrDefault(lastKey, emptyList()) + arg), lastKey)
     }.first
+
+private fun Map<String, List<String>>.getGenom(): String? {
+    val genom = this["-g"]?.firstOrNull()
+    val version = genom?.take(2)
+    if ((version != null) && !Zoo.version.replace(".", "").startsWith(version)) {
+        println("Incompatible genom-version, exiting! genom-version: $version, program-version: ${Zoo.version}")
+        exitProcess(-1)
+    }
+    return genom
+}
+
+private fun Map<String, List<String>>.getDefaultContext(delay: Long, size: Size): Context? {
+    val contextString = this["-c"]?.firstOrNull()
+    if (contextString != null) {
+        try {
+            val defaultContext = Json.decodeFromString<Context>(contextString).apply {
+                generation = 0
+                survivors = 0
+                mutations = 0
+                this.delay = delay
+                this.size = size
+            }
+            if (defaultContext.version != Zoo.version) {
+                println("Incompatible context-version, exiting! context-version: ${defaultContext.version}, " +
+                        "program-version: ${Zoo.version}")
+                exitProcess(-3)
+            }
+            return defaultContext
+        } catch (e: Exception) {
+            println("Unable to parse context: '$contextString'")
+            exitProcess(-2)
+        }
+    }
+    return null
+}
