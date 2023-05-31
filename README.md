@@ -17,7 +17,7 @@ Build with Apache Maven:
 Run in a Java Runtime:
 
 ```
-USAGE: java -jar target/zoo-0.6.1-SNAPSHOT-jar-with-dependencies.jar [-c <context>] [-g <genom>] [-d <delay>] [-q] [-?]
+USAGE: java -jar target/zoo-0.6.2-jar-with-dependencies.jar [-c <context>] [-g <genom>] [-d <delay>] [-q] [-?]
 
     -c <context> ... always use this context
     -g <genom>   ... use this genom as starting-point for every simulation
