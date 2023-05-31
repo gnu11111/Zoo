@@ -14,12 +14,12 @@ class WorldTest {
         var blobs = 0
         for (y in world.area.indices) {
             for (x in world.area.first().indices) {
-                if (world.isWall(x, y))
-                    print("#")
-                else if (!world.isEmpty(x, y)) {
+                if (world.isBlob(x, y)) {
                     print("*")
                     blobs++
-                } else if (world.isKillarea(x, y))
+                } else if (world.isWall(x, y))
+                    print("#")
+                else if (world.isKillarea(x, y))
                     print(":")
                 else
                     print(".")
