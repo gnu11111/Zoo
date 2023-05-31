@@ -19,7 +19,7 @@ class Blob(val brain: Brain, val position: Position = Position(0, 0)) {
     }
 }
 
-class Position(var x: Int, var y: Int) {
+data class Position(var x: Int, var y: Int) {
 
     companion object {
         fun randomPosition(world: World): Position {
