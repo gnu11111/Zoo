@@ -59,8 +59,7 @@ sealed class Action : Neuron() {
         val x = max(0, min(blob.position.x + blob.heading.dx, world.context.size.maxX - 1))
         val y = max(0, min(blob.position.y + blob.heading.dy, world.context.size.maxY - 1))
         if (world.isEmpty(x, y)) {
-            world.free(blob.position.x, blob.position.y)
-            world.occupy(x, y)
+            world.move(blob.position.x, blob.position.y, x, y)
             blob.position.x = x
             blob.position.y = y
         }

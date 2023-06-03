@@ -61,8 +61,10 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
         var streak = 0
         while (true) {
             if (world.context.survivors == world.context.blobs) streak++ else streak = 0
-            if (((world.context.generations >= 0) && (world.context.generation >= world.context.generations))
-                || ((world.context.generations < 0) && (streak > 23))) {
+            val endOfLife = (((world.context.generations >= 0)
+                    && (world.context.generation >= world.context.generations))
+                    || ((world.context.generations < 0) && (streak > 23)))
+            if (endOfLife) {
                 if (!quiet) Toolkit.getDefaultToolkit().beep()
                 world.context.delay = 50L
                 render = true
@@ -93,8 +95,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
             val remainingPopulation = world.population.killPopulation(world)
             world.context.survivors = remainingPopulation.blobs.size
             renderer.finish(world, silent)
-            if (((world.context.generations >= 0) && (world.context.generation >= world.context.generations))
-                || ((world.context.generations < 0) && (streak > 23)))
+            if (endOfLife)
                 break
             if (render && !silent)
                 sleep(min(3000, (world.context.delay * 40L)))

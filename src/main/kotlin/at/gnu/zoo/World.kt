@@ -54,13 +54,9 @@ class World(val context: Context) {
     }
 
     @Synchronized
-    fun occupy(x: Int, y: Int) {
-        area[y][x] = BLOB
-    }
-
-    @Synchronized
-    fun free(x: Int, y: Int) {
-        area[y][x] = EMPTY
+    fun move(fromX: Int, fromY: Int, toX: Int, toY: Int) {
+        area[fromY][fromX] = EMPTY
+        area[toY][toX] = BLOB
     }
 
     @Synchronized
