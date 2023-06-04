@@ -9,8 +9,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.awt.Toolkit
 import java.lang.Thread.sleep
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
@@ -77,8 +75,8 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
             while (world.age < world.context.lifetime) {
                 when (input.poll()) {
                     Input.Key.None -> if (!fastForward && render && !silent) sleep(world.context.delay)
-                    Input.Key.Right -> world.context.delay = max(0, world.context.delay - 25)
-                    Input.Key.Left -> world.context.delay = min(225, world.context.delay + 25)
+                    Input.Key.Right -> world.context.delay = (world.context.delay - 25).coerceAtLeast(0)
+                    Input.Key.Left -> world.context.delay = (world.context.delay + 25).coerceAtMost(225)
                     Input.Key.Up -> if (render) render = false else { render = true; fastForward = true }
                     Input.Key.Down -> { silent = !silent; renderer.init(world) }
                     Input.Key.Skip -> fastForward = true
@@ -98,7 +96,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
             if (endOfLife)
                 break
             if (render && !silent)
-                sleep(min(3000, (world.context.delay * 40L)))
+                sleep((world.context.delay * 40L).coerceAtMost(3000L))
             world.context.generation++
             world.init(remainingPopulation.reproduce(world))
         }

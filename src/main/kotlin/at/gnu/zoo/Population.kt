@@ -1,6 +1,5 @@
 package at.gnu.zoo
 
-import kotlin.math.min
 import kotlin.random.Random
 
 class Population(val blobs: List<Blob> = emptyList()) {
@@ -9,7 +8,7 @@ class Population(val blobs: List<Blob> = emptyList()) {
         val mutationRate = (100 * (world.context.blobs - world.context.survivors)) / world.context.blobs
         val population = mutableListOf<Blob>()
         val positions = mutableSetOf<Position>()
-        repeat(min(world.context.blobs, world.freeSpots())) {
+        repeat(world.context.blobs.coerceAtMost(world.freeSpots())) {
             var newBlob: Blob
             do {
                 newBlob = blobs.createOffspring(world, mutationRate)
@@ -53,7 +52,7 @@ class Population(val blobs: List<Blob> = emptyList()) {
         fun randomPopulation(world: World, genom: String? = null): Population {
             val population = mutableListOf<Blob>()
             val positions = mutableSetOf<Position>()
-            repeat(min(world.context.blobs, world.freeSpots())) {
+            repeat(world.context.blobs.coerceAtMost(world.freeSpots())) {
                 var newBlob: Blob
                 do {
                     newBlob = Blob.randomBlob(world, genom)

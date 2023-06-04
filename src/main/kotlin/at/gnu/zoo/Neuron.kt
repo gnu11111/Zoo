@@ -1,12 +1,9 @@
 package at.gnu.zoo
 
-import kotlin.math.max
-import kotlin.math.min
-
 sealed class Neuron(private val initialPower: Int = 0) {
 
     open val power: Int
-        get() = max(0, min(_power, 32))
+        get() = _power.coerceIn(0, 32)
 
     protected var _power: Int = initialPower
 
@@ -28,7 +25,7 @@ sealed class Neuron(private val initialPower: Int = 0) {
 class InnerNeuron(private val id: Int = 0) : Neuron(1) {
 
     override val power: Int
-        get() = max(-32, min(_power, 32))
+        get() = _power.coerceIn(-32, 32)
 
     override fun toString() = "InnerNeuron$id:$power"
 }
@@ -56,8 +53,8 @@ sealed class Action : Neuron() {
     abstract fun clone(): Action
 
     fun move(blob: Blob, world: World) {
-        val x = max(0, min(blob.position.x + blob.heading.dx, world.context.size.maxX - 1))
-        val y = max(0, min(blob.position.y + blob.heading.dy, world.context.size.maxY - 1))
+        val x = (blob.position.x + blob.heading.dx).coerceIn(0, world.context.size.maxX - 1)
+        val y = (blob.position.y + blob.heading.dy).coerceIn(0, world.context.size.maxY - 1)
         if (world.isEmpty(x, y)) {
             world.move(blob.position.x, blob.position.y, x, y)
             blob.position.x = x
