@@ -18,12 +18,12 @@ fun main(args: Array<String>) {
     val quiet = (arguments["-q"] != null)
     val delay = arguments["-d"]?.firstOrNull()?.toLongOrNull() ?: Zoo.defaultDelay
     val genom = arguments.getGenom()
-    val innerNeurons = genom?.drop(2)?.take(2)?.toInt(16) ?: (2 + (2 * Random.nextInt(5)))
-    val genomSize = if (genom != null) (genom.length - 4) / Brain.geneSize else 5 + (5 * Random.nextInt(5))
     val renderer = Terminal(Size(80, 40))
     val size = renderer.open()
     val defaultContext = arguments.getDefaultContext(delay, size)
     do {
+        val genomSize = if (genom != null) (genom.length - 4) / Brain.geneSize else 5 + (5 * Random.nextInt(10))
+        val innerNeurons = genom?.drop(2)?.take(2)?.toInt(16) ?: (2 + (2 * Random.nextInt(5)))
         val context = defaultContext
             ?: Context(
                 version = Zoo.version,
@@ -108,8 +108,8 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
     }
 
     private fun World.logFirstGenom() {
-        val context = json.encodeToString(world.context).replace("\"", "\\\"")
-        log.info("-c $context -g ${population.blobs.firstOrNull()?.brain?.genom ?: ""}")
+        val contextString = json.encodeToString(context).replace("\"", "\\\"")
+        log.info("-c $contextString -g ${population.blobs.firstOrNull()?.brain?.genom ?: ""}")
     }
 }
 
