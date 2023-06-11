@@ -8,7 +8,6 @@ import com.googlecode.lanterna.input.KeyType.*
 import com.googlecode.lanterna.screen.TerminalScreen
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory
 import java.awt.Color
-import kotlin.math.min
 
 class Terminal(size: Size) : Renderer, Input {
 
@@ -19,7 +18,7 @@ class Terminal(size: Size) : Renderer, Input {
     private var quality = 0
 
     init {
-        val terminalSize = TerminalSize(min(size.maxX + statusSize, 215), min(65, size.maxY))
+        val terminalSize = TerminalSize((size.maxX + statusSize).coerceAtMost(215), size.maxY.coerceAtMost(65))
         val defaultTerminalFactory = DefaultTerminalFactory().setInitialTerminalSize(terminalSize)
             .setTerminalEmulatorTitle("Zoo by gnu")
         val terminal = defaultTerminalFactory.createTerminal()
@@ -139,7 +138,7 @@ class Terminal(size: Size) : Renderer, Input {
         putString(statusX, 16, "                       ")
         if (finish) calculateStreak(rate)
         backgroundColor = if (rate == 100) GREEN else if (rate > 89) YELLOW else BLACK_BRIGHT
-        putString(statusX, 16, " ".repeat(min(streak, 23)))
+        putString(statusX, 16, " ".repeat(streak.coerceAtMost(23)))
     }
 
     private fun calculateStreak(rate: Int) {
