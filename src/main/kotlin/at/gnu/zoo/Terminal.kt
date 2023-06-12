@@ -54,7 +54,7 @@ class Terminal(size: Size) : Renderer, Input {
         textGraphics.foregroundColor = CYAN_BRIGHT
         textGraphics.putString(statusX + 4, 1, "o")
         textGraphics.foregroundColor = WHITE
-        textGraphics.putString(statusX + 5, 1, " by gnu (v${world.context.version})")
+        textGraphics.putString(statusX + 5, 1, " by gnu  (v${world.context.version})")
         textGraphics.foregroundColor = WHITE_BRIGHT
         textGraphics.backgroundColor = RED
         textGraphics.putString(statusX + 2, 1, "Z")
@@ -135,17 +135,17 @@ class Terminal(size: Size) : Renderer, Input {
         putString(statusX, 11, "Mutations:  ${world.context.mutations}")
         foregroundColor = if (rate == 100) GREEN_BRIGHT else if (rate > 89) YELLOW_BRIGHT else RED_BRIGHT
         putString(statusX + 16, 10, "($rate%)")
-        putString(statusX, 16, "                       ")
+        putString(statusX, 16, "                        ")
         if (finish) calculateStreak(rate)
         backgroundColor = if (rate == 100) GREEN else if (rate > 89) YELLOW else BLACK_BRIGHT
-        putString(statusX, 16, " ".repeat(streak.coerceAtMost(23)))
+        putString(statusX, 16, " ".repeat((24 * streak / world.context.streak).coerceAtMost(24)))
     }
 
     private fun calculateStreak(rate: Int) {
         if (rate == 100)
             if (quality == 2) streak++ else { streak = 0; quality = 2 }
         else if (rate > 89)
-            if (quality == 1) streak++ else { streak = 0; quality = 1 }
+            if (quality == 2) quality = 1 else if (quality == 1) streak++ else { streak = 0; quality = 1 }
         else
             if (quality == 0) streak++ else { streak = 0; quality = 0 }
     }
@@ -383,6 +383,6 @@ class Terminal(size: Size) : Renderer, Input {
 //    }
 
     companion object {
-        const val statusSize = 27
+        const val statusSize = 28
     }
 }

@@ -47,7 +47,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
           private val quiet: Boolean) {
 
     companion object {
-        const val version = "0.6.2"
+        const val version = "0.7.0"
         const val defaultDelay = 50L
         val log: Logger = LoggerFactory.getLogger(Zoo::class.java)
         val json = Json { encodeDefaults = true }
@@ -61,7 +61,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
             if (world.context.survivors == world.context.blobs) streak++ else streak = 0
             val endOfLife = (((world.context.generations >= 0)
                     && (world.context.generation >= world.context.generations))
-                    || ((world.context.generations < 0) && (streak > 23)))
+                    || ((world.context.generations < 0) && (streak >= world.context.streak)))
             if (endOfLife) {
                 if (!quiet) Toolkit.getDefaultToolkit().beep()
                 world.context.delay = 50L
@@ -117,6 +117,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
 data class Context(
     val version: String,
     val lifetime: Int = 1,
+    val streak: Int = 12,
     val blobs: Int = 1,
     val genomSize: Int = 10,
     val innerNeurons: Int = 4,
