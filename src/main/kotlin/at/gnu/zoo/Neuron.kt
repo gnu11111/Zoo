@@ -33,7 +33,7 @@ class InnerNeuron(private val id: Int = 0) : Neuron(1) {
 sealed class Sensor : Neuron() {
     companion object {
         private val sensors = listOf(Oszillator, Age, DistanceFromEastBorder, DistanceFromWestBorder,
-            DistanceFromNorthBorder, DistanceFromSouthBorder, PopulationForward, WallForward)
+            DistanceFromNorthBorder, DistanceFromSouthBorder, PopulationForward, WallForward, Neighbors)
         fun of(index: Int): Sensor =
             sensors[index % sensors.size]
     }

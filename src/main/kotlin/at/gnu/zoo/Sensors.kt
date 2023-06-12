@@ -74,3 +74,20 @@ object WallForward : Sensor() {
 
     override fun toString() = "WallForward:$power"
 }
+
+object Neighbors : Sensor() {
+
+    override fun calculatePower(world: World, blob: Blob): Int {
+        val x = blob.position.x
+        val y = blob.position.y
+        val power = world.neighbor(x - 1, y - 1) + world.neighbor(x - 1, y) + world.neighbor(x - 1, y + 1) +
+                world.neighbor(x, y - 1) + world.neighbor(x, y + 1) + world.neighbor(x + 1, y - 1) +
+                world.neighbor(x + 1, y) + world.neighbor(x + 1, y + 1)
+        return setAndGetPower(power)
+    }
+
+    private fun World.neighbor(x: Int, y: Int): Int =
+        if (isBlob(x, y)) 4 else 0
+
+    override fun toString() = "Neighbors:$power"
+}
