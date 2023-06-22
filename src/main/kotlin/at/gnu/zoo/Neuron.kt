@@ -44,7 +44,7 @@ sealed class Sensor : Neuron() {
 sealed class Action : Neuron() {
     companion object {
         private val actions = listOf(Move(), MoveRandomly(), MoveEast(), MoveWest(), MoveNorth(), MoveSouth(),
-            TurnRight(), TurnLeft(), TurnAround(), TurnRandomly())
+            TurnRight(), TurnLeft(), TurnAround(), TurnRandomly(), Kill())
         fun of(index: Int): Action =
             actions[index % actions.size].clone()
     }

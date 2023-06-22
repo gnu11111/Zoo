@@ -32,6 +32,7 @@ fun main(args: Array<String>) {
                 blobs = 50 + (5 * Random.nextInt(size.maxX * size.maxY / 64)),
                 genomSize = genomSize,
                 innerNeurons = innerNeurons,
+                killNeuronActive = (Random.nextInt(10) > 8),
                 killZone = KillZone.randomType(),
                 walls = Walls.randomType(),
                 delay = delay,
@@ -47,7 +48,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
           private val quiet: Boolean) {
 
     companion object {
-        const val version = "0.7.0"
+        const val version = "0.7.1"
         const val defaultDelay = 50L
         val log: Logger = LoggerFactory.getLogger(Zoo::class.java)
         val json = Json { encodeDefaults = true }
@@ -90,7 +91,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
                 if (render && !fastForward && !silent)
                     renderer.view(world)
             }
-            val remainingPopulation = world.population.killPopulation(world)
+            val remainingPopulation = world.population.killPopulation()
             world.context.survivors = remainingPopulation.blobs.size
             renderer.finish(world, silent)
             if (endOfLife)
@@ -98,7 +99,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
             if (render && !silent)
                 sleep((world.context.delay * 40L).coerceAtMost(3000L))
             world.context.generation++
-            world.init(remainingPopulation.reproduce(world))
+            world.init(remainingPopulation.reproduce())
         }
         return when (input.read()) {
             Input.Key.Log -> true.also { world.logFirstGenom() }
@@ -121,6 +122,7 @@ data class Context(
     val blobs: Int = 1,
     val genomSize: Int = 10,
     val innerNeurons: Int = 4,
+    val killNeuronActive: Boolean = false,
     val killZone: KillZone = KillZone.randomType(),
     val walls: Walls = Walls.randomType(),
     var generations: Int = 1,
@@ -128,7 +130,8 @@ data class Context(
     var generation: Int = 0,
     var delay: Long = Zoo.defaultDelay,
     var survivors: Int = 0,
-    var mutations: Int = 0
+    var mutations: Int = 0,
+    var killed: Int = 0
 )
 
 @Serializable

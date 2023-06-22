@@ -7,6 +7,11 @@ class Blob(val brain: Brain, val position: Position = Position(0, 0)) {
 
     val color = brain.getColor()
     val heading = Heading.randomHeading()
+    var alive = true
+        private set
+
+    fun kill() =
+        alive.also { alive = false }
 
     private fun Brain.getColor(): Color {
         val color = genom.chunked(genom.length / 3).map { it.fold(0) { acc, c -> (acc + c.code) % 255 } }

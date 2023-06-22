@@ -7,7 +7,7 @@ class World(val context: Context) {
 
     var age = 0
     var oszillator = 0
-    var population: Population = Population()
+    var population: Population = Population(this)
     val area = Array(context.size.maxY) { IntArray(context.size.maxX) }
 
     private val killZoneArea = Array(context.size.maxY) { IntArray(context.size.maxX) }
@@ -46,9 +46,8 @@ class World(val context: Context) {
     fun progress(): World {
         age++
         processOszillator()
-        population.blobs.forEach {
-            val actions = it.brain.think(this, it)
-            actions.forEach { action -> action.apply(this, it) }
+        population.blobs.asSequence().filter { it.alive }.forEach { blob ->
+            blob.brain.think(this, blob).forEach { action -> action.apply(this, blob) }
         }
         return this
     }

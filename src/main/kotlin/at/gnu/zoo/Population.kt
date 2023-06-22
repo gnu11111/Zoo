@@ -2,27 +2,32 @@ package at.gnu.zoo
 
 import kotlin.random.Random
 
-class Population(val blobs: List<Blob> = emptyList()) {
+class Population(val world: World, val blobs: List<Blob> = emptyList()) {
 
-    fun reproduce(world: World): Population {
+    fun reproduce(): Population {
         val mutationRate = (100 * (world.context.blobs - world.context.survivors)) / world.context.blobs
         val population = mutableListOf<Blob>()
         val positions = mutableSetOf<Position>()
         repeat(world.context.blobs.coerceAtMost(world.freeSpots())) {
             var newBlob: Blob
             do {
-                newBlob = blobs.createOffspring(world, mutationRate)
+                newBlob = blobs.createOffspring(mutationRate)
             } while (newBlob.position in positions)
             population += newBlob
             positions += newBlob.position
         }
-        return Population(population)
+        return Population(world, population)
     }
 
-    fun killPopulation(world: World): Population =
-        Population(blobs.filter { !world.isKillarea(it.position.x, it.position.y) })
+    fun killBlob(x: Int, y: Int) =
+        blobs.first { (it.position.x == x) && (it.position.y == y) }.kill().also {
+            if (it) world.context.killed++
+        }
 
-    private fun List<Blob>.createOffspring(world: World, mutationRate: Int): Blob {
+    fun killPopulation(): Population =
+        Population(world, blobs.filter { it.alive && !world.isKillarea(it.position.x, it.position.y) })
+
+    private fun List<Blob>.createOffspring(mutationRate: Int): Blob {
         val position = Position.randomPosition(world)
         val blob = if (isEmpty()) Blob.randomBlob(world) else this[Random.nextInt(size)]
         val genom = blob.brain.genom
@@ -58,7 +63,7 @@ class Population(val blobs: List<Blob> = emptyList()) {
                 population += newBlob
                 positions += newBlob.position
             }
-            return Population(population)
+            return Population(world, population)
         }
     }
 }

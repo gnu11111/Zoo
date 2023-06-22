@@ -52,10 +52,10 @@ object DistanceFromSouthBorder : Sensor() {
 object PopulationForward : Sensor() {
 
     override fun calculatePower(world: World, blob: Blob): Int {
-        val power = (1..8).fold(0) { acc, i ->
+        val power = (1..32).fold(0) { acc, i ->
             val x = blob.position.x + (i * blob.heading.dx)
             val y = blob.position.y + (i * blob.heading.dy)
-            acc + if (world.isBlob(x, y)) 4 else 0
+            acc + if (world.isBlob(x, y)) 1 else 0
         }
         return setAndGetPower(power)
     }
@@ -66,9 +66,9 @@ object PopulationForward : Sensor() {
 object WallForward : Sensor() {
 
     override fun calculatePower(world: World, blob: Blob): Int {
-        for (i in 1..8)
+        for (i in 1..31)
             if (world.isWall(blob.position.x + (i * blob.heading.dx), blob.position.y + (i * blob.heading.dy)))
-                return setAndGetPower((9 - i) * 4)
+                return setAndGetPower(32 - i)
         return setAndGetPower(0)
     }
 

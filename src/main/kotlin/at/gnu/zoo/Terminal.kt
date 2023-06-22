@@ -58,6 +58,8 @@ class Terminal(size: Size) : Renderer, Input {
         textGraphics.foregroundColor = WHITE_BRIGHT
         textGraphics.backgroundColor = RED
         textGraphics.putString(statusX + 2, 1, "Z")
+        streak = 0
+        quality = 0
         textGraphics.showResult(world, false)
         occupied.clear()
         renderPopulation(world)
@@ -70,8 +72,8 @@ class Terminal(size: Size) : Renderer, Input {
         textGraphics.foregroundColor = WHITE_BRIGHT
         textGraphics.backgroundColor = BLACK_BRIGHT
         val speed = if (world.context.delay == 0L) "MAX" else "${(10L - (world.context.delay / 25L))}  "
-        textGraphics.putString(statusX, 13, "Age:        ${world.age} / ${world.context.lifetime}  ")
-        textGraphics.putString(statusX, 14, "Speed:      $speed")
+        textGraphics.putString(statusX, 14, "Age:        ${world.age} / ${world.context.lifetime}  ")
+        textGraphics.putString(statusX, 15, "Speed:      $speed")
         renderPopulation(world)
         screen.refresh()
     }
@@ -93,9 +95,9 @@ class Terminal(size: Size) : Renderer, Input {
             }
             world.population.blobs.forEach {
                 if (world.isKillarea(it.position.x, it.position.y))
-                    setCharacterInBackbuffer(it.position.x, it.position.y, Color.WHITE, RED)
+                    setCharacterInBackbuffer(it.position.x, it.position.y, it.alive, Color.WHITE, RED)
                 else
-                    setCharacterInBackbuffer(it.position.x, it.position.y, it.color)
+                    setCharacterInBackbuffer(it.position.x, it.position.y, it.alive, it.color)
             }
         }
         textGraphics.showResult(world, true)
@@ -116,7 +118,7 @@ class Terminal(size: Size) : Renderer, Input {
         occupied.forEach { clearCharacterInBackbuffer(it.first, it.second) }
         occupied.clear()
         world.population.blobs.forEach {
-            setCharacterInBackbuffer(it.position.x, it.position.y, it.color)
+            setCharacterInBackbuffer(it.position.x, it.position.y, it.alive, it.color)
             occupied.add(it.position.x to it.position.y)
         }
     }
@@ -133,21 +135,26 @@ class Terminal(size: Size) : Renderer, Input {
         putString(statusX, 10, "Survivors:              ")
         putString(statusX, 10, "Survivors:  ${world.context.survivors}")
         putString(statusX, 11, "Mutations:  ${world.context.mutations}")
-        foregroundColor = if (rate == 100) GREEN_BRIGHT else if (rate > 89) YELLOW_BRIGHT else RED_BRIGHT
-        putString(statusX + 16, 10, "($rate%)")
-        putString(statusX, 16, "                        ")
-        if (finish) calculateStreak(rate)
-        backgroundColor = if (rate == 100) GREEN else if (rate > 89) YELLOW else BLACK_BRIGHT
-        putString(statusX, 16, " ".repeat((24 * streak / world.context.streak).coerceAtMost(24)))
+        if (world.context.killNeuronActive)
+            putString(statusX, 12, "Killed:     ${world.context.killed}")
+        putString(statusX, 17, "                        ")
+        if (finish) {
+            calculateStreak(rate)
+            backgroundColor = if (rate > 90) GREEN else if (rate > 60) YELLOW else RED
+            putString(statusX, 17, " ".repeat((24 * rate) / 100))
+            backgroundColor = GREEN_BRIGHT
+            putString(statusX, 17, " ".repeat((24 * streak / world.context.streak).coerceAtMost(24)))
+        }
     }
 
     private fun calculateStreak(rate: Int) {
-        if (rate == 100)
-            if (quality == 2) streak++ else { streak = 0; quality = 2 }
-        else if (rate > 89)
-            if (quality == 2) quality = 1 else if (quality == 1) streak++ else { streak = 0; quality = 1 }
-        else
-            if (quality == 0) streak++ else { streak = 0; quality = 0 }
+        if (rate == 100) {
+            quality++
+            if (streak < quality) streak++
+        } else {
+            quality = 0
+            if (streak > 0) streak--
+        }
     }
 
     private fun mapKey(key: KeyStroke?): Input.Key =
@@ -165,12 +172,13 @@ class Terminal(size: Size) : Renderer, Input {
             else -> Input.Key.None
         }
 
-    private fun setCharacterInBackbuffer(x: Int, y: Int, color: Color, background: TextColor = BLACK) {
+    private fun setCharacterInBackbuffer(x: Int, y: Int, alive: Boolean, color: Color, background: TextColor = BLACK) {
         val cellToModify = TerminalPosition(x, y)
         val foreground = color.toForegroundColor()
         val foregroundColor = if (foreground == background) WHITE_BRIGHT else foreground
+        val character = if (alive) '*' else 'x'
         screen.setCharacter(cellToModify, screen.getBackCharacter(cellToModify)
-            .withForegroundColor(foregroundColor).withBackgroundColor(background).withCharacter('*'))
+            .withForegroundColor(foregroundColor).withBackgroundColor(background).withCharacter(character))
     }
 
     private fun clearCharacterInBackbuffer(x: Int, y: Int) {
