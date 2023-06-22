@@ -138,13 +138,11 @@ class Terminal(size: Size) : Renderer, Input {
         if (world.context.killNeuronActive)
             putString(statusX, 12, "Killed:     ${world.context.killed}")
         putString(statusX, 17, "                        ")
-        if (finish) {
-            calculateStreak(rate)
-            backgroundColor = if (rate > 90) GREEN else if (rate > 60) YELLOW else RED
-            putString(statusX, 17, " ".repeat((24 * rate) / 100))
-            backgroundColor = GREEN_BRIGHT
-            putString(statusX, 17, " ".repeat((24 * streak / world.context.streak).coerceAtMost(24)))
-        }
+        calculateStreak(rate)
+        backgroundColor = if (rate > 90) GREEN else if (rate > 60) CYAN else WHITE
+        putString(statusX, 17, " ".repeat((24 * rate) / 100))
+        backgroundColor = GREEN_BRIGHT
+        putString(statusX, 17, " ".repeat((24 * streak / world.context.streak).coerceAtMost(24)))
     }
 
     private fun calculateStreak(rate: Int) {
