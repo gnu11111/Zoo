@@ -45,11 +45,11 @@ class Terminal(size: Size) : Renderer, Input {
         val statusText = "║" + " ".repeat(statusSize - 2) + "║"
         (0 until screen.terminalSize.rows).forEach { textGraphics.putString(statusX - 2, it, statusText) }
         textGraphics.foregroundColor = WHITE_BRIGHT
-        textGraphics.putString(statusX, 12, "Populations: ${world.context.tribes}")
-        textGraphics.putString(statusX, 13, "Blobs:       ${world.context.blobs}")
-        textGraphics.putString(statusX, 14, "Genom-Size:  ${world.context.genomSize}")
-        textGraphics.putString(statusX, 15, "Neurons:     ${world.context.innerNeurons}")
-        textGraphics.putString(statusX, 16, "Kill-Zone:   ${world.context.killZone}")
+        textGraphics.putString(statusX, 12, "Tribes:     ${world.context.tribes}")
+        textGraphics.putString(statusX, 13, "Blobs:      ${world.context.blobs}")
+        textGraphics.putString(statusX, 14, "Genom-Size: ${world.context.genomSize}")
+        textGraphics.putString(statusX, 15, "Neurons:    ${world.context.innerNeurons}")
+        textGraphics.putString(statusX, 16, "Kill-Zone:  ${world.context.killZone}")
         textGraphics.foregroundColor = YELLOW_BRIGHT
         textGraphics.putString(statusX + 3, 1, "o")
         textGraphics.foregroundColor = CYAN_BRIGHT
@@ -73,8 +73,8 @@ class Terminal(size: Size) : Renderer, Input {
         textGraphics.foregroundColor = WHITE_BRIGHT
         textGraphics.backgroundColor = BLACK_BRIGHT
         val speed = if (world.context.delay == 0L) "MAX" else "${(10L - (world.context.delay / 25L))}  "
-        textGraphics.putString(statusX, 7, "Age:         ${world.age} / ${world.context.lifetime}  ")
-        textGraphics.putString(statusX, 8, "Speed:       $speed")
+        textGraphics.putString(statusX, 7, "Age:        ${world.age} / ${world.context.lifetime}  ")
+        textGraphics.putString(statusX, 8, "Speed:      $speed")
         renderPopulation(world)
         screen.refresh()
     }
@@ -134,13 +134,13 @@ class Terminal(size: Size) : Renderer, Input {
         backgroundColor = BLACK_BRIGHT
         foregroundColor = if (finish) GREEN_BRIGHT else WHITE_BRIGHT
         if (world.context.generations >= 0)
-            putString(statusX, 3, "Generation:  ${world.context.generation} / ${world.context.generations}")
+            putString(statusX, 3, "Generation: ${world.context.generation} / ${world.context.generations}")
         else
-            putString(statusX, 3, "Generation:  ${world.context.generation}        ")
-        putString(statusX, 4, "Mutations:   ${world.context.mutations}")
-        putString(statusX, 5, "Seeded:      ${world.context.seeded}")
+            putString(statusX, 3, "Generation: ${world.context.generation}        ")
+        putString(statusX, 4, "Mutations:  ${world.context.mutations}")
+        putString(statusX, 5, "Seeded:     ${world.context.seeded}")
         if (world.context.killNeuronActive)
-            putString(statusX, 6, "Killed:      ${world.context.killed}")
+            putString(statusX, 6, "Killed:     ${world.context.killed}")
         putString(statusX, 10, "                        ")
         calculateStreak(rate)
         backgroundColor = if (rate > 90) GREEN else if (rate > 60) CYAN else WHITE
