@@ -24,14 +24,14 @@ fun main(args: Array<String>) {
     do {
         val genomSize = if (genom != null) (genom.length - 4) / Brain.geneSize else 5 + (5 * Random.nextInt(10))
         val innerNeurons = genom?.drop(2)?.take(2)?.toInt(16) ?: (2 + (2 * Random.nextInt(5)))
-        val populations = 1 + Random.nextInt(3)
+        val tribes = 1 + Random.nextInt(4)
         val context = defaultContext
             ?: Context(
                 version = Zoo.version,
                 generations = -1, // 100 + (100 * Random.nextInt(50)),
                 lifetime = 50 + (5 * Random.nextInt(50)),
-                tribes = populations,
-                blobs = populations * ((50 + (5 * Random.nextInt(size.maxX * size.maxY / 64))) / populations),
+                tribes = tribes,
+                blobs = tribes * ((50 + (5 * Random.nextInt(size.maxX * size.maxY / 64))) / tribes),
                 genomSize = genomSize,
                 innerNeurons = innerNeurons,
                 killNeuronActive = (Random.nextInt(10) > 8),
@@ -49,7 +49,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
           private val quiet: Boolean) {
 
     companion object {
-        const val version = "0.8.0"
+        const val version = "0.8.1"
         const val defaultDelay = 50L
         val log: Logger = LoggerFactory.getLogger(Zoo::class.java)
         val json = Json { encodeDefaults = true }

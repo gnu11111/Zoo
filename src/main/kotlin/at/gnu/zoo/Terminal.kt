@@ -97,7 +97,7 @@ class Terminal(size: Size) : Renderer, Input {
             world.populations.forEach { population ->
                 population.blobs.forEach {
                     if (world.isKillarea(it.position.x, it.position.y))
-                        setCharacterInBackbuffer(population.tribe, it.position.x, it.position.y, it.alive, Color.WHITE, RED)
+                        setCharacterInBackbuffer(population.tribe, it.position.x, it.position.y, false, it.color)
                     else
                         setCharacterInBackbuffer(population.tribe, it.position.x, it.position.y, it.alive, it.color)
                 }
@@ -177,12 +177,13 @@ class Terminal(size: Size) : Renderer, Input {
     private fun setCharacterInBackbuffer(tribe: Int, x: Int, y: Int, alive: Boolean, color: Color,
                                          background: TextColor = BLACK) {
         val cellToModify = TerminalPosition(x, y)
-        val foreground = color.toForegroundColor()
-        val foregroundColor = if (foreground == background) WHITE_BRIGHT else foreground
         // ×o+*øƟ⁜⁕※∆∅⊞⊟⊕⊗⊙⊚⊛⊠⊡⋈⎈⎕⎊①②③④⑤⑥⑦⑧⑨▢▣△▽◇◉○◌◻✫✻♥♣★◈∎◍
-        val character = if (alive) "♣★▲o♥"[tribe % 5] else 'x'
+        val character = "♣★o▲♥"[tribe % 5]
+        val foreground = color.toForegroundColor()
+        val foregroundColor = if (!alive || (foreground == background)) WHITE_BRIGHT else foreground
+        val backgroundColor = if (alive) background else RED
         screen.setCharacter(cellToModify, screen.getBackCharacter(cellToModify)
-            .withForegroundColor(foregroundColor).withBackgroundColor(background).withCharacter(character))
+            .withForegroundColor(foregroundColor).withBackgroundColor(backgroundColor).withCharacter(character))
     }
 
     private fun clearCharacterInBackbuffer(x: Int, y: Int) {

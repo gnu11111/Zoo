@@ -15,14 +15,15 @@ class World(val context: Context) {
     private var oszillatorIncrement = -1
 
     enum class Walls {
-        None, Vertical, Horizontal, Plus, Slash, Grid;
+        None, Vertical, Horizontal, Plus, Slash, Grid, Crosshair;
         companion object {
             fun randomType() = values().random()
         }
     }
 
     enum class KillZone {
-        EasternHalf, WesternHalf, NorthernHalf, SouthernHalf, BorderArea, CenterArea, NorthSouth, EastWest, Checkers;
+        EasternHalf, WesternHalf, NorthernHalf, SouthernHalf, BorderArea, CenterArea, NorthSouth, EastWest, Checkers,
+        Corners;
         companion object {
             fun randomType() = values().random()
         }
@@ -39,7 +40,7 @@ class World(val context: Context) {
         oszillator = 0
         area.indices.forEach { y -> area[y].indices.forEach { x -> if (area[y][x] > EMPTY) area[y][x] = EMPTY } }
         this.populations = populations
-        populations.forEach { it.blobs.forEach { area[it.position.y][it.position.x] = 1 } }
+        populations.forEach { population -> population.blobs.forEach { area[it.position.y][it.position.x] = 1 } }
         return this
     }
 
@@ -129,6 +130,10 @@ class World(val context: Context) {
             Grid -> (0 until (2 * yMax / 5)).forEach { y -> (0 until (2 * xMax / 5)).forEach { x ->
                 this[(yMax / 10) + (2 * y)][(xMax / 10) + (2 * x)] = WALL
             } }
+            Crosshair -> {
+                (0 until (xMax / 3)).forEach { x -> this[yMax / 2][x] = WALL; this[yMax / 2][xMax - x - 1] = WALL }
+                (0 until (yMax / 3)).forEach { y -> this[y][xMax / 2] = WALL; this[yMax - y - 1][xMax / 2] = WALL }
+            }
         }
     }
 
@@ -174,6 +179,14 @@ class World(val context: Context) {
                 (0 until xMax).forEach { x ->
                     this[y][x] = if (((x < (xMax / 2)) && (y < (yMax / 2)))
                         || ((x >= (xMax / 2)) && (y >= (yMax / 2)))) 1 else 0
+                }
+            }
+            Corners -> indices.forEach { y ->
+                (0 until xMax).forEach { x ->
+                    this[y][x] = if (((x < (xMax / 4)) && (y < (yMax / 4)))
+                        || ((x >= (xMax - (xMax / 4))) && (y >= (yMax - (yMax / 4))))
+                        || ((x >= (xMax - (xMax / 4))) && (y < (yMax / 4)))
+                        || ((x < (xMax / 4)) && (y >= (yMax - (yMax / 4))))) 1 else 0
                 }
             }
         }
