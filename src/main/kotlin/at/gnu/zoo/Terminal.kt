@@ -180,7 +180,7 @@ class Terminal(size: Size) : Renderer, Input {
         val foreground = color.toForegroundColor()
         val foregroundColor = if (foreground == background) WHITE_BRIGHT else foreground
         // ×o+*øƟ⁜⁕※∆∅⊞⊟⊕⊗⊙⊚⊛⊠⊡⋈⎈⎕⎊①②③④⑤⑥⑦⑧⑨▢▣△▽◇◉○◌◻✫✻♥♣★◈∎◍
-        val character = if (alive) "♥★▲∎♣"[tribe % 5] else 'x'
+        val character = if (alive) "♣★▲♥o"[tribe % 5] else 'x'
         screen.setCharacter(cellToModify, screen.getBackCharacter(cellToModify)
             .withForegroundColor(foregroundColor).withBackgroundColor(background).withCharacter(character))
     }
