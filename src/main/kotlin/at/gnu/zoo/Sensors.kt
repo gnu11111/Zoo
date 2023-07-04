@@ -1,5 +1,7 @@
 package at.gnu.zoo
 
+import at.gnu.zoo.World.Companion.EMPTY
+
 object Oszillator : Sensor() {
 
     override fun calculatePower(world: World, blob: Blob): Int =
@@ -75,19 +77,43 @@ object WallForward : Sensor() {
     override fun toString() = "WallForward:$power"
 }
 
-object Neighbors : Sensor() {
+sealed class NeighborSensor : Sensor() {
+
+    abstract fun World.neighbor(x: Int, y: Int, tribe: Int): Int
 
     override fun calculatePower(world: World, blob: Blob): Int {
         val x = blob.position.x
         val y = blob.position.y
-        val power = world.neighbor(x - 1, y - 1) + world.neighbor(x - 1, y) + world.neighbor(x - 1, y + 1) +
-                world.neighbor(x, y - 1) + world.neighbor(x, y + 1) + world.neighbor(x + 1, y - 1) +
-                world.neighbor(x + 1, y) + world.neighbor(x + 1, y + 1)
+        val power = world.neighbor(x - 1, y - 1, blob.tribe) + world.neighbor(x - 1, y, blob.tribe) +
+                world.neighbor(x - 1, y + 1, blob.tribe) + world.neighbor(x, y - 1, blob.tribe) +
+                world.neighbor(x, y + 1, blob.tribe) + world.neighbor(x + 1, y - 1, blob.tribe) +
+                world.neighbor(x + 1, y, blob.tribe) + world.neighbor(x + 1, y + 1, blob.tribe)
         return setAndGetPower(power)
     }
+}
 
-    private fun World.neighbor(x: Int, y: Int): Int =
+object Neighbors : NeighborSensor() {
+
+    override fun World.neighbor(x: Int, y: Int, tribe: Int): Int =
         if (isBlob(x, y)) 4 else 0
 
     override fun toString() = "Neighbors:$power"
+}
+
+object TribeNeighbors : NeighborSensor() {
+
+    override fun World.neighbor(x: Int, y: Int, tribe: Int): Int =
+        if (getType(x, y) == tribe) 4 else 0
+
+    override fun toString() = "TribeNeighbors:$power"
+}
+
+object ForeignNeighbors : NeighborSensor() {
+
+    override fun World.neighbor(x: Int, y: Int, tribe: Int): Int {
+        val type = getType(x, y)
+        return if ((type > EMPTY) && (type != tribe)) 4 else 0
+    }
+
+    override fun toString() = "ForeignNeighbors:$power"
 }

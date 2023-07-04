@@ -107,7 +107,7 @@ class Kill : Action() {
         val x = blob.position.x + blob.heading.dx
         val y = blob.position.y + blob.heading.dy
         if (world.isBlob(x, y) && (Random.nextInt(100) > 98))
-            world.population.killBlob(x, y)
+            world.kill(x, y)
     }
 
     override fun clone() = Kill()

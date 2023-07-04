@@ -45,10 +45,11 @@ class Terminal(size: Size) : Renderer, Input {
         val statusText = "║" + " ".repeat(statusSize - 2) + "║"
         (0 until screen.terminalSize.rows).forEach { textGraphics.putString(statusX - 2, it, statusText) }
         textGraphics.foregroundColor = WHITE_BRIGHT
-        textGraphics.putString(statusX, 5, "Population: ${world.context.blobs}")
-        textGraphics.putString(statusX, 6, "Genom-Size: ${world.context.genomSize}")
-        textGraphics.putString(statusX, 7, "Neurons:    ${world.context.innerNeurons}")
-        textGraphics.putString(statusX, 8, "Kill-Zone:  ${world.context.killZone}")
+        textGraphics.putString(statusX, 12, "Populations: ${world.context.tribes}")
+        textGraphics.putString(statusX, 13, "Blobs:       ${world.context.blobs}")
+        textGraphics.putString(statusX, 14, "Genom-Size:  ${world.context.genomSize}")
+        textGraphics.putString(statusX, 15, "Neurons:     ${world.context.innerNeurons}")
+        textGraphics.putString(statusX, 16, "Kill-Zone:   ${world.context.killZone}")
         textGraphics.foregroundColor = YELLOW_BRIGHT
         textGraphics.putString(statusX + 3, 1, "o")
         textGraphics.foregroundColor = CYAN_BRIGHT
@@ -72,8 +73,8 @@ class Terminal(size: Size) : Renderer, Input {
         textGraphics.foregroundColor = WHITE_BRIGHT
         textGraphics.backgroundColor = BLACK_BRIGHT
         val speed = if (world.context.delay == 0L) "MAX" else "${(10L - (world.context.delay / 25L))}  "
-        textGraphics.putString(statusX, 14, "Age:        ${world.age} / ${world.context.lifetime}  ")
-        textGraphics.putString(statusX, 15, "Speed:      $speed")
+        textGraphics.putString(statusX, 7, "Age:         ${world.age} / ${world.context.lifetime}  ")
+        textGraphics.putString(statusX, 8, "Speed:       $speed")
         renderPopulation(world)
         screen.refresh()
     }
@@ -93,11 +94,13 @@ class Terminal(size: Size) : Renderer, Input {
                     }
                 }
             }
-            world.population.blobs.forEach {
-                if (world.isKillarea(it.position.x, it.position.y))
-                    setCharacterInBackbuffer(it.position.x, it.position.y, it.alive, Color.WHITE, RED)
-                else
-                    setCharacterInBackbuffer(it.position.x, it.position.y, it.alive, it.color)
+            world.populations.forEach { population ->
+                population.blobs.forEach {
+                    if (world.isKillarea(it.position.x, it.position.y))
+                        setCharacterInBackbuffer(population.tribe, it.position.x, it.position.y, it.alive, Color.WHITE, RED)
+                    else
+                        setCharacterInBackbuffer(population.tribe, it.position.x, it.position.y, it.alive, it.color)
+                }
             }
         }
         textGraphics.showResult(world, true)
@@ -117,9 +120,11 @@ class Terminal(size: Size) : Renderer, Input {
     private fun renderPopulation(world: World) {
         occupied.forEach { clearCharacterInBackbuffer(it.first, it.second) }
         occupied.clear()
-        world.population.blobs.forEach {
-            setCharacterInBackbuffer(it.position.x, it.position.y, it.alive, it.color)
-            occupied.add(it.position.x to it.position.y)
+        world.populations.forEach { population ->
+            population.blobs.forEach {
+                setCharacterInBackbuffer(population.tribe, it.position.x, it.position.y, it.alive, it.color)
+                occupied.add(it.position.x to it.position.y)
+            }
         }
     }
 
@@ -129,20 +134,19 @@ class Terminal(size: Size) : Renderer, Input {
         backgroundColor = BLACK_BRIGHT
         foregroundColor = if (finish) GREEN_BRIGHT else WHITE_BRIGHT
         if (world.context.generations >= 0)
-            putString(statusX, 3, "Generation: ${world.context.generation} / ${world.context.generations}")
+            putString(statusX, 3, "Generation:  ${world.context.generation} / ${world.context.generations}")
         else
-            putString(statusX, 3, "Generation: ${world.context.generation}        ")
-        putString(statusX, 10, "Survivors:              ")
-        putString(statusX, 10, "Survivors:  ${world.context.survivors}")
-        putString(statusX, 11, "Mutations:  ${world.context.mutations}")
+            putString(statusX, 3, "Generation:  ${world.context.generation}        ")
+        putString(statusX, 4, "Mutations:   ${world.context.mutations}")
+        putString(statusX, 5, "Seeded:      ${world.context.seeded}")
         if (world.context.killNeuronActive)
-            putString(statusX, 12, "Killed:     ${world.context.killed}")
-        putString(statusX, 17, "                        ")
+            putString(statusX, 6, "Killed:      ${world.context.killed}")
+        putString(statusX, 10, "                        ")
         calculateStreak(rate)
         backgroundColor = if (rate > 90) GREEN else if (rate > 60) CYAN else WHITE
-        putString(statusX, 17, " ".repeat((24 * rate) / 100))
+        putString(statusX, 10, " ".repeat((24 * rate) / 100))
         backgroundColor = GREEN_BRIGHT
-        putString(statusX, 17, " ".repeat((24 * streak / world.context.streak).coerceAtMost(24)))
+        putString(statusX, 10, " ".repeat((24 * streak / world.context.streak).coerceAtMost(24)))
     }
 
     private fun calculateStreak(rate: Int) {
@@ -170,11 +174,13 @@ class Terminal(size: Size) : Renderer, Input {
             else -> Input.Key.None
         }
 
-    private fun setCharacterInBackbuffer(x: Int, y: Int, alive: Boolean, color: Color, background: TextColor = BLACK) {
+    private fun setCharacterInBackbuffer(tribe: Int, x: Int, y: Int, alive: Boolean, color: Color,
+                                         background: TextColor = BLACK) {
         val cellToModify = TerminalPosition(x, y)
         val foreground = color.toForegroundColor()
         val foregroundColor = if (foreground == background) WHITE_BRIGHT else foreground
-        val character = if (alive) '*' else 'x'
+        // ×o+*øƟ⁜⁕※∆∅⊞⊟⊕⊗⊙⊚⊛⊠⊡⋈⎈⎕⎊①②③④⑤⑥⑦⑧⑨▢▣△▽◇◉○◌◻✫✻♥♣★◈∎◍
+        val character = if (alive) "♥★▲∎♣"[tribe % 5] else 'x'
         screen.setCharacter(cellToModify, screen.getBackCharacter(cellToModify)
             .withForegroundColor(foregroundColor).withBackgroundColor(background).withCharacter(character))
     }

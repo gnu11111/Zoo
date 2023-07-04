@@ -3,7 +3,7 @@ package at.gnu.zoo
 import java.awt.Color
 import kotlin.random.Random
 
-class Blob(val brain: Brain, val position: Position = Position(0, 0)) {
+class Blob(val brain: Brain, val position: Position = Position(0, 0), val tribe: Int = 1) {
 
     val color = brain.getColor()
     val heading = Heading.randomHeading()
@@ -19,8 +19,10 @@ class Blob(val brain: Brain, val position: Position = Position(0, 0)) {
     }
 
     companion object {
-        fun randomBlob(world: World, genom: String? = null) =
-            Blob(if (genom != null) Brain(genom) else Brain.randomBrain(world.context), Position.randomPosition(world))
+        fun randomBlob(world: World, tribe: Int = 1, genom: String? = null): Blob {
+            val brain = if (genom != null) Brain(genom) else Brain.randomBrain(world.context)
+            return Blob(brain, Position.randomPosition(world), tribe)
+        }
     }
 }
 

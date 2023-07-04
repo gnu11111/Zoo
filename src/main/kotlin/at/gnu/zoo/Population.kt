@@ -2,34 +2,38 @@ package at.gnu.zoo
 
 import kotlin.random.Random
 
-class Population(val world: World, val blobs: List<Blob> = emptyList()) {
+class Population(val tribe: Int, val world: World, val blobs: MutableList<Blob> = mutableListOf()) {
 
-    fun reproduce(): Population {
+    fun reproduce(newBlobs: MutableList<Blob> = mutableListOf()) {
         val mutationRate = (100 * (world.context.blobs - world.context.survivors)) / world.context.blobs
-        val population = mutableListOf<Blob>()
+        blobs.removeIf { !it.alive }
         val positions = mutableSetOf<Position>()
-        repeat(world.context.blobs.coerceAtMost(world.freeSpots())) {
+        val blobsRequired = (world.context.blobs / world.context.tribes) - newBlobs.size
+        repeat(blobsRequired.coerceAtMost(world.freeSpots())) {
             var newBlob: Blob
             do {
                 newBlob = blobs.createOffspring(mutationRate)
             } while (newBlob.position in positions)
-            population += newBlob
+            newBlobs += newBlob
             positions += newBlob.position
         }
-        return Population(world, population)
+        blobs.clear()
+        blobs += newBlobs
     }
 
     fun killBlob(x: Int, y: Int) =
-        blobs.first { (it.position.x == x) && (it.position.y == y) }.kill().also {
+        blobs.firstOrNull { (it.position.x == x) && (it.position.y == y) }?.kill()?.also {
             if (it) world.context.killed++
         }
 
-    fun killPopulation(): Population =
-        Population(world, blobs.filter { it.alive && !world.isKillarea(it.position.x, it.position.y) })
+    fun killPopulation(): Int {
+        blobs.forEach { if (world.isKillarea(it.position.x, it.position.y)) it.kill() }
+        return blobs.count { it.alive }
+    }
 
     private fun List<Blob>.createOffspring(mutationRate: Int): Blob {
         val position = Position.randomPosition(world)
-        val blob = if (isEmpty()) Blob.randomBlob(world) else this[Random.nextInt(size)]
+        val blob = if (isEmpty()) Blob.randomBlob(world, tribe) else this[Random.nextInt(size)]
         val genom = blob.brain.genom
         val genom2 = if (isEmpty()) Blob.randomBlob(world).brain.genom else this[Random.nextInt(size)].brain.genom
         val cutPosition = Random.nextInt(genom.length)
@@ -38,7 +42,7 @@ class Population(val world: World, val blobs: List<Blob> = emptyList()) {
             return Blob(Brain(newGenom), position)
         world.context.mutations++
         val mutatedGenom = mutateGenom(newGenom)
-        return Blob(Brain(mutatedGenom), position)
+        return Blob(Brain(mutatedGenom), position, tribe)
     }
 
     private fun mutateGenom(genom: String): String {
@@ -52,18 +56,19 @@ class Population(val world: World, val blobs: List<Blob> = emptyList()) {
     }
 
     companion object {
-        fun randomPopulation(world: World, genom: String? = null): Population {
-            val population = mutableListOf<Blob>()
+        fun randomPopulation(world: World, tribe: Int = 1, genom: String? = null): Population {
+            val blobs = mutableListOf<Blob>()
             val positions = mutableSetOf<Position>()
-            repeat(world.context.blobs.coerceAtMost(world.freeSpots())) {
+            val amount = world.context.blobs / world.context.tribes
+            repeat(amount.coerceAtMost(world.freeSpots())) {
                 var newBlob: Blob
                 do {
-                    newBlob = Blob.randomBlob(world, genom)
+                    newBlob = Blob.randomBlob(world, tribe, genom)
                 } while (newBlob.position in positions)
-                population += newBlob
+                blobs += newBlob
                 positions += newBlob.position
             }
-            return Population(world, population)
+            return Population(tribe, world, blobs)
         }
     }
 }

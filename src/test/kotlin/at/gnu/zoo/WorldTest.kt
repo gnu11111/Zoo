@@ -10,7 +10,7 @@ class WorldTest {
         val context = Context(version = Zoo.version, blobs = 10, size = Size(10, 10))
         println(context)
         val world = World.randomWorld(context).progress()
-        assertEquals(10, world.population.blobs.size)
+        assertEquals(10, world.populations.sumOf { it.blobs.size })
         var blobs = 0
         for (y in world.area.indices) {
             for (x in world.area.first().indices) {

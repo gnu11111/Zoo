@@ -33,7 +33,8 @@ class InnerNeuron(private val id: Int = 0) : Neuron(1) {
 sealed class Sensor : Neuron() {
     companion object {
         private val sensors = listOf(Oszillator, Age, DistanceFromEastBorder, DistanceFromWestBorder,
-            DistanceFromNorthBorder, DistanceFromSouthBorder, PopulationForward, WallForward, Neighbors)
+            DistanceFromNorthBorder, DistanceFromSouthBorder, PopulationForward, WallForward, Neighbors,
+            TribeNeighbors, ForeignNeighbors)
         fun of(index: Int): Sensor =
             sensors[index % sensors.size]
     }
@@ -56,7 +57,7 @@ sealed class Action : Neuron() {
         val x = (blob.position.x + blob.heading.dx).coerceIn(0, world.context.size.maxX - 1)
         val y = (blob.position.y + blob.heading.dy).coerceIn(0, world.context.size.maxY - 1)
         if (world.isEmpty(x, y)) {
-            world.move(blob.position.x, blob.position.y, x, y)
+            world.move(blob.position.x, blob.position.y, x, y, blob.tribe)
             blob.position.x = x
             blob.position.y = y
         }

@@ -24,12 +24,14 @@ fun main(args: Array<String>) {
     do {
         val genomSize = if (genom != null) (genom.length - 4) / Brain.geneSize else 5 + (5 * Random.nextInt(10))
         val innerNeurons = genom?.drop(2)?.take(2)?.toInt(16) ?: (2 + (2 * Random.nextInt(5)))
+        val populations = 1 + Random.nextInt(3)
         val context = defaultContext
             ?: Context(
                 version = Zoo.version,
                 generations = -1, // 100 + (100 * Random.nextInt(50)),
                 lifetime = 50 + (5 * Random.nextInt(50)),
-                blobs = 50 + (5 * Random.nextInt(size.maxX * size.maxY / 64)),
+                tribes = populations,
+                blobs = populations * ((50 + (5 * Random.nextInt(size.maxX * size.maxY / 64))) / populations),
                 genomSize = genomSize,
                 innerNeurons = innerNeurons,
                 killNeuronActive = (Random.nextInt(10) > 8),
@@ -38,8 +40,7 @@ fun main(args: Array<String>) {
                 delay = delay,
                 size = size
             )
-        val world = World(context)
-        val zoo = Zoo(world.init(Population.randomPopulation(world, genom)), renderer, renderer, quiet)
+        val zoo = Zoo(World.randomWorld(context), renderer, renderer, quiet)
     } while (zoo.run() && (genom == null))
     renderer.close()
 }
@@ -48,7 +49,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
           private val quiet: Boolean) {
 
     companion object {
-        const val version = "0.7.1"
+        const val version = "0.8.0"
         const val defaultDelay = 50L
         val log: Logger = LoggerFactory.getLogger(Zoo::class.java)
         val json = Json { encodeDefaults = true }
@@ -91,15 +92,14 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
                 if (render && !fastForward && !silent)
                     renderer.view(world)
             }
-            val remainingPopulation = world.population.killPopulation()
-            world.context.survivors = remainingPopulation.blobs.size
             renderer.finish(world, silent)
+            world.context.survivors = world.endOfLifetime()
             if (endOfLife)
                 break
             if (render && !silent)
                 sleep((world.context.delay * 40L).coerceAtMost(3000L))
             world.context.generation++
-            world.init(remainingPopulation.reproduce())
+            world.repopulate()
         }
         return when (input.read()) {
             Input.Key.Log -> true.also { world.logFirstGenom() }
@@ -110,7 +110,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
 
     private fun World.logFirstGenom() {
         val contextString = json.encodeToString(context).replace("\"", "\\\"")
-        log.info("-c $contextString -g ${population.blobs.firstOrNull()?.brain?.genom ?: ""}")
+        log.info("-c $contextString -g ${populations.firstOrNull()?.blobs?.firstOrNull()?.brain?.genom ?: ""}")
     }
 }
 
@@ -119,6 +119,7 @@ data class Context(
     val version: String,
     val lifetime: Int = 1,
     val streak: Int = 12,
+    val tribes: Int = 1,
     val blobs: Int = 1,
     val genomSize: Int = 10,
     val innerNeurons: Int = 4,
@@ -131,7 +132,8 @@ data class Context(
     var delay: Long = Zoo.defaultDelay,
     var survivors: Int = 0,
     var mutations: Int = 0,
-    var killed: Int = 0
+    var killed: Int = 0,
+    var seeded: Int = 0
 )
 
 @Serializable

@@ -2,12 +2,13 @@ package at.gnu.zoo
 
 import at.gnu.zoo.World.KillZone.*
 import at.gnu.zoo.World.Walls.*
+import kotlin.random.Random
 
 class World(val context: Context) {
 
     var age = 0
     var oszillator = 0
-    var population: Population = Population(this)
+    var populations: List<Population> = emptyList()
     val area = Array(context.size.maxY) { IntArray(context.size.maxX) }
 
     private val killZoneArea = Array(context.size.maxY) { IntArray(context.size.maxX) }
@@ -33,12 +34,12 @@ class World(val context: Context) {
     }
 
     @Synchronized
-    fun init(population: Population): World {
+    fun init(populations: List<Population>): World {
         age = 0
         oszillator = 0
-        area.indices.forEach { y -> area[y].indices.forEach { x -> if (area[y][x] == BLOB) area[y][x] = EMPTY } }
-        this.population = population
-        population.blobs.forEach { area[it.position.y][it.position.x] = BLOB }
+        area.indices.forEach { y -> area[y].indices.forEach { x -> if (area[y][x] > EMPTY) area[y][x] = EMPTY } }
+        this.populations = populations
+        populations.forEach { it.blobs.forEach { area[it.position.y][it.position.x] = 1 } }
         return this
     }
 
@@ -46,21 +47,48 @@ class World(val context: Context) {
     fun progress(): World {
         age++
         processOszillator()
-        population.blobs.asSequence().filter { it.alive }.forEach { blob ->
-            blob.brain.think(this, blob).forEach { action -> action.apply(this, blob) }
+        populations.forEach { population ->
+            population.blobs.asSequence().filter { it.alive }.forEach { blob ->
+                blob.brain.think(this, blob).forEach { action -> action.apply(this, blob) }
+            }
         }
         return this
     }
 
     @Synchronized
-    fun move(fromX: Int, fromY: Int, toX: Int, toY: Int) {
-        area[fromY][fromX] = EMPTY
-        area[toY][toX] = BLOB
+    fun endOfLifetime(): Int =
+        populations.sumOf { it.killPopulation() }
+
+    @Synchronized
+    fun repopulate(): World {
+        populations.forEach {
+            val seededBlobs = if ((context.tribes > 1) && (Random.nextInt(1000) > 990)) {
+                context.seeded++
+                mutableListOf(populations.random().blobs.first())
+            } else
+                mutableListOf()
+            it.reproduce(seededBlobs)
+        }
+        return init(populations)
     }
 
     @Synchronized
+    fun kill(x: Int, y: Int) =
+        populations.forEach { it.killBlob(x, y) }
+
+    @Synchronized
+    fun move(fromX: Int, fromY: Int, toX: Int, toY: Int, population: Int = 1) {
+        area[fromY][fromX] = EMPTY
+        area[toY][toX] = population
+    }
+
+    @Synchronized
+    fun getType(x: Int, y: Int): Int =
+        area.getOrNull(y)?.getOrNull(x) ?: EMPTY
+
+    @Synchronized
     fun isEmpty(x: Int, y: Int): Boolean =
-        (area.getOrNull(y)?.getOrNull(x) ?: BLOB) == EMPTY
+        (area.getOrNull(y)?.getOrNull(x) ?: 1) == EMPTY
 
     @Synchronized
     fun isWall(x: Int, y: Int): Boolean =
@@ -68,7 +96,7 @@ class World(val context: Context) {
 
     @Synchronized
     fun isBlob(x: Int, y: Int): Boolean =
-        (area.getOrNull(y)?.getOrNull(x) ?: EMPTY) == BLOB
+        (area.getOrNull(y)?.getOrNull(x) ?: EMPTY) > EMPTY
 
     @Synchronized
     fun isKillarea(x: Int, y: Int): Boolean =
@@ -153,12 +181,11 @@ class World(val context: Context) {
 
     companion object {
         const val EMPTY = 0
-        const val WALL = 1
-        const val BLOB = 2
+        const val WALL = -1
 
         fun randomWorld(context: Context = Context(Zoo.version)): World {
             val world = World(context)
-            world.init(Population.randomPopulation(world))
+            world.init(List(context.tribes) { Population.randomPopulation(world, it + 1) })
             return world
         }
     }
