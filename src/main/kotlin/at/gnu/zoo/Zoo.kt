@@ -110,7 +110,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
 
     private fun World.logFirstGenom() {
         val contextString = json.encodeToString(context).replace("\"", "\\\"")
-        log.info("-c $contextString -g ${populations.firstOrNull()?.blobs?.firstOrNull()?.brain?.genom ?: ""}")
+        populations.forEach { log.info("-c $contextString -g ${it.blobs.firstOrNull()?.brain?.genom ?: ""}") }
     }
 }
 
