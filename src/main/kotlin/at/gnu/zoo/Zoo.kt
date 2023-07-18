@@ -18,7 +18,7 @@ fun main(args: Array<String>) {
     val quiet = (arguments["-q"] != null)
     val delay = arguments["-d"]?.firstOrNull()?.toLongOrNull() ?: Zoo.defaultDelay
     val genom = arguments.getGenom()
-    val renderer = Terminal(Size(80, 40))
+    val renderer = Terminal(Size(79, 39))
     val size = renderer.open()
     val defaultContext = arguments.getDefaultContext(delay, size)
     do {

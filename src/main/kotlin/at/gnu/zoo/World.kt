@@ -124,15 +124,15 @@ class World(val context: Context) {
                 ((xMax / 4) until (xMax - (xMax / 4))).forEach { x -> this[yMax / 2][x] = WALL }
                 ((yMax / 4) until (yMax - (yMax / 4))).forEach { y -> this[y][xMax / 2] = WALL }
             }
-            Slash -> (0 until (xMax / 2)).forEach { x ->
-                this[yMax - (yMax / 4) - (x * yMax / xMax)][(xMax / 4) + x] = WALL
+            Slash -> (1 .. ((xMax / 2) + 1)).forEach { x ->
+                this[yMax - (yMax / 4) - (x * yMax / xMax) - 1][(xMax / 4) + x] = WALL
             }
-            Grid -> (0 until (2 * yMax / 5)).forEach { y -> (0 until (2 * xMax / 5)).forEach { x ->
+            Grid -> (1 .. (2 * yMax / 5)).forEach { y -> (1 .. (2 * xMax / 5)).forEach { x ->
                 this[(yMax / 10) + (2 * y)][(xMax / 10) + (2 * x)] = WALL
             } }
             Crosshair -> {
-                (0 until (xMax / 3)).forEach { x -> this[yMax / 2][x] = WALL; this[yMax / 2][xMax - x - 1] = WALL }
-                (0 until (yMax / 3)).forEach { y -> this[y][xMax / 2] = WALL; this[yMax - y - 1][xMax / 2] = WALL }
+                (0 .. (xMax / 3)).forEach { x -> this[yMax / 2][x] = WALL; this[yMax / 2][xMax - x - 1] = WALL }
+                (0 .. (yMax / 3)).forEach { y -> this[y][xMax / 2] = WALL; this[yMax - y - 1][xMax / 2] = WALL }
             }
         }
     }
@@ -145,13 +145,13 @@ class World(val context: Context) {
                 (0 until xMax).forEach { x -> this[y][x] = if (x < (xMax / 2)) 1 else 0 }
             }
             EasternHalf -> indices.forEach { y ->
-                (0 until xMax).forEach { x -> this[y][x] = if (x >= (xMax / 2)) 1 else 0 }
+                (0 until xMax).forEach { x -> this[y][x] = if (x > (xMax / 2)) 1 else 0 }
             }
             NorthernHalf -> indices.forEach { y ->
                 (0 until xMax).forEach { x -> this[y][x] = if (y < (yMax / 2)) 1 else 0 }
             }
             SouthernHalf -> indices.forEach { y ->
-                (0 until xMax).forEach { x -> this[y][x] = if (y >= (yMax / 2)) 1 else 0 }
+                (0 until xMax).forEach { x -> this[y][x] = if (y > (yMax / 2)) 1 else 0 }
             }
             BorderArea -> indices.forEach { y ->
                 (0 until xMax).forEach { x ->
@@ -177,8 +177,8 @@ class World(val context: Context) {
             }
             Checkers -> indices.forEach { y ->
                 (0 until xMax).forEach { x ->
-                    this[y][x] = if (((x < (xMax / 2)) && (y < (yMax / 2)))
-                        || ((x >= (xMax / 2)) && (y >= (yMax / 2)))) 1 else 0
+                    this[y][x] = if (((x <= (xMax / 2)) && (y <= (yMax / 2)))
+                        || ((x > (xMax / 2)) && (y > (yMax / 2)))) 1 else 0
                 }
             }
             Corners -> indices.forEach { y ->
