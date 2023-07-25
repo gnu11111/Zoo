@@ -22,7 +22,7 @@ sealed class Neuron(private val initialPower: Int = 0) {
     }
 }
 
-class InnerNeuron(private val id: Int = 0) : Neuron(1) {
+class InnerNeuron(private val id: Int = 0) : Neuron(8) {
 
     override val power: Int
         get() = _power.coerceIn(-32, 32)

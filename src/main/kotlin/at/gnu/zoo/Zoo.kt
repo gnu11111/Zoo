@@ -49,7 +49,7 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
           private val quiet: Boolean) {
 
     companion object {
-        const val version = "0.8.1"
+        const val version = "0.8.2"
         const val defaultDelay = 50L
         val log: Logger = LoggerFactory.getLogger(Zoo::class.java)
         val json = Json { encodeDefaults = true }

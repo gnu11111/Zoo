@@ -177,7 +177,7 @@ class Terminal(size: Size) : Renderer, Input {
     private fun setCharacterInBackbuffer(tribe: Int, x: Int, y: Int, alive: Boolean, color: Color,
                                          background: TextColor = BLACK) {
         val cellToModify = TerminalPosition(x, y)
-        // ×o+*øƟ⁜⁕※∆∅⊞⊟⊕⊗⊙⊚⊛⊠⊡⋈⎈⎕⎊①②③④⑤⑥⑦⑧⑨▢▣△▽◇◉○◌◻✫✻♥♣★◈∎◍
+        // ×o+*øƟ⁜⁕※∆∅⊞⊟⊕⊗⊙⊚⊛⊠⊡⋈⎈⎊①②③④⑤⑥⑦⑧⑨▢▣△▽◇◉○◌◻✫✻♥♣★◈∎◍
         val character = "♣★o▲♥"[tribe % 5]
         val foreground = color.toForegroundColor()
         val foregroundColor = if (!alive || (foreground == background)) WHITE_BRIGHT else foreground

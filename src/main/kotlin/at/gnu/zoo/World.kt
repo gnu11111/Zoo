@@ -38,6 +38,7 @@ class World(val context: Context) {
     fun init(populations: List<Population>): World {
         age = 0
         oszillator = 0
+        oszillatorIncrement = -1
         area.indices.forEach { y -> area[y].indices.forEach { x -> if (area[y][x] > EMPTY) area[y][x] = EMPTY } }
         this.populations = populations
         populations.forEach { population -> population.blobs.forEach { area[it.position.y][it.position.x] = 1 } }
