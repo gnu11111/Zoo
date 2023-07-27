@@ -26,7 +26,7 @@ class Brain(val genom: String) {
                 connection.from.power
             connection.to.addPower((power * connection.weight) / 32)
         }
-        return actions.filter { it.power > actionThreshold }
+        return actions.filter { it.power > ACTION_THRESHOLD }
     }
 
     fun print() {
@@ -79,10 +79,10 @@ class Brain(val genom: String) {
             allConnections -= existingConnection
         }
 
-        genom.drop(4).chunked(geneSize) {
+        genom.drop(4).chunked(GENE_SIZE) {
             val (fromType, fromIndex) = getTypeAndIndexOf(it.substring(0, 2))
             val (toType, toIndex) = getTypeAndIndexOf(it.substring(2, 4))
-            val weight = it.substring(4, geneSize).toInt(16) - 128
+            val weight = it.substring(4, GENE_SIZE).toInt(16) - 128
             when {
                 ((fromType == 0) && (toType == 0)) ->
                     addConnection(Sensor.of(fromIndex), getInnerNeuron(toIndex), weight)
@@ -107,8 +107,8 @@ class Brain(val genom: String) {
     }
 
     companion object {
-        const val geneSize = 6
-        const val actionThreshold = 15
+        const val GENE_SIZE = 6
+        const val ACTION_THRESHOLD = 15
 
         fun randomBrain(context: Context): Brain = Brain(randomGenom(context))
 
@@ -118,7 +118,7 @@ class Brain(val genom: String) {
                 Random.nextInt(32)
             else
                 context.innerNeurons).toString(16).padStart(2, '0')
-            val connections = (1..(context.genomSize * geneSize)).fold("") { acc, _ ->
+            val connections = (1..(context.genomSize * GENE_SIZE)).fold("") { acc, _ ->
                 acc + Random.nextInt(16).toString(16)
             }
             return version + neurons + connections

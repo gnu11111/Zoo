@@ -7,7 +7,7 @@ class WorldTest {
 
     @Test
     fun `render world after some progress`() {
-        val context = Context(version = Zoo.version, blobs = 10, size = Size(10, 10))
+        val context = Context(version = Zoo.VERSION, blobs = 10, size = Size(10, 10))
         println(context)
         val world = World.randomWorld(context).progress()
         assertEquals(10, world.populations.sumOf { it.blobs.size })

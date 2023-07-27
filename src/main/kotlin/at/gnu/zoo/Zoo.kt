@@ -16,18 +16,18 @@ fun main(args: Array<String>) {
     val arguments = parseArguments(args)
     if (arguments["-?"] != null) printUsageAndExit()
     val quiet = (arguments["-q"] != null)
-    val delay = arguments["-d"]?.firstOrNull()?.toLongOrNull() ?: Zoo.defaultDelay
+    val delay = arguments["-d"]?.firstOrNull()?.toLongOrNull() ?: Zoo.DEFAULT_DELAY
     val genom = arguments.getGenom()
     val renderer = Terminal(Size(79, 39))
     val size = renderer.open()
     val defaultContext = arguments.getDefaultContext(delay, size)
     do {
-        val genomSize = if (genom != null) (genom.length - 4) / Brain.geneSize else 5 + (5 * Random.nextInt(10))
+        val genomSize = if (genom != null) (genom.length - 4) / Brain.GENE_SIZE else 5 + (5 * Random.nextInt(10))
         val innerNeurons = genom?.drop(2)?.take(2)?.toInt(16) ?: (2 + (2 * Random.nextInt(5)))
         val tribes = 1 + Random.nextInt(4)
         val context = defaultContext
             ?: Context(
-                version = Zoo.version,
+                version = Zoo.VERSION,
                 generations = -1, // 100 + (100 * Random.nextInt(50)),
                 lifetime = 50 + (5 * Random.nextInt(50)),
                 tribes = tribes,
@@ -49,8 +49,8 @@ class Zoo(private val world: World, private val renderer: Renderer, private val 
           private val quiet: Boolean) {
 
     companion object {
-        const val version = "0.8.2"
-        const val defaultDelay = 50L
+        const val VERSION = "0.8.2"
+        const val DEFAULT_DELAY = 50L
         val log: Logger = LoggerFactory.getLogger(Zoo::class.java)
         val json = Json { encodeDefaults = true }
     }
@@ -129,7 +129,7 @@ data class Context(
     var generations: Int = 1,
     var size: Size = Size(80, 24),
     var generation: Int = 0,
-    var delay: Long = Zoo.defaultDelay,
+    var delay: Long = Zoo.DEFAULT_DELAY,
     var survivors: Int = 0,
     var mutations: Int = 0,
     var killed: Int = 0,
@@ -141,7 +141,7 @@ data class Size(val maxX: Int, val maxY: Int)
 
 private fun printUsageAndExit() {
     println("""
-        USAGE: java -jar zoo-${Zoo.version}.jar [-c <context>] [-g <genom>] [-d <delay>] [-q] [-?]
+        USAGE: java -jar zoo-${Zoo.VERSION}.jar [-c <context>] [-g <genom>] [-d <delay>] [-q] [-?]
         
             -c <context> ... always use this context
             -g <genom>   ... use this genom as starting-point for every simulation
@@ -162,8 +162,8 @@ private fun parseArguments(args: Array<String>): Map<String, List<String>> =
 private fun Map<String, List<String>>.getGenom(): String? {
     val genom = this["-g"]?.firstOrNull()
     val version = genom?.take(2)
-    if ((version != null) && !Zoo.version.replace(".", "").startsWith(version)) {
-        println("Incompatible genom-version, exiting! genom-version: $version, program-version: ${Zoo.version}")
+    if ((version != null) && !Zoo.VERSION.replace(".", "").startsWith(version)) {
+        println("Incompatible genom-version, exiting! genom-version: $version, program-version: ${Zoo.VERSION}")
         exitProcess(-1)
     }
     return genom
@@ -180,9 +180,9 @@ private fun Map<String, List<String>>.getDefaultContext(delay: Long, size: Size)
                 this.delay = delay
                 this.size = size
             }
-            if (defaultContext.version != Zoo.version) {
+            if (defaultContext.version != Zoo.VERSION) {
                 println("Incompatible context-version, exiting! context-version: ${defaultContext.version}, " +
-                        "program-version: ${Zoo.version}")
+                        "program-version: ${Zoo.VERSION}")
                 exitProcess(-3)
             }
             return defaultContext

@@ -18,7 +18,7 @@ class Terminal(size: Size) : Renderer, Input {
     private var quality = 0
 
     init {
-        val terminalSize = TerminalSize((size.maxX + statusSize).coerceAtMost(215), size.maxY.coerceAtMost(65))
+        val terminalSize = TerminalSize((size.maxX + STATUS_SIZE).coerceAtMost(215), size.maxY.coerceAtMost(65))
         val defaultTerminalFactory = DefaultTerminalFactory().setInitialTerminalSize(terminalSize)
             .setTerminalEmulatorTitle("Zoo by gnu")
         val terminal = defaultTerminalFactory.createTerminal()
@@ -28,21 +28,21 @@ class Terminal(size: Size) : Renderer, Input {
     override fun open(): Size {
         screen.startScreen()
         screen.cursorPosition = null
-        return Size(screen.terminalSize.columns - statusSize, screen.terminalSize.rows)
+        return Size(screen.terminalSize.columns - STATUS_SIZE, screen.terminalSize.rows)
     }
 
     override fun init(world: World) {
         val textGraphics = screen.newTextGraphics()
         (0 until screen.terminalSize.rows).forEach { y ->
-            (0 until screen.terminalSize.columns - statusSize).forEach { x ->
+            (0 until screen.terminalSize.columns - STATUS_SIZE).forEach { x ->
                 if (world.isWall(x, y)) textGraphics.backgroundColor = BLUE else textGraphics.backgroundColor = BLACK
                 textGraphics.putString(x, y, " ")
             }
         }
-        val statusX = screen.terminalSize.columns - statusSize + 2
+        val statusX = screen.terminalSize.columns - STATUS_SIZE + 2
         textGraphics.foregroundColor = BLUE
         textGraphics.backgroundColor = BLACK_BRIGHT
-        val statusText = "║" + " ".repeat(statusSize - 2) + "║"
+        val statusText = "║" + " ".repeat(STATUS_SIZE - 2) + "║"
         (0 until screen.terminalSize.rows).forEach { textGraphics.putString(statusX - 2, it, statusText) }
         textGraphics.foregroundColor = WHITE_BRIGHT
         textGraphics.putString(statusX, 12, "Tribes:     ${world.context.tribes}")
@@ -69,7 +69,7 @@ class Terminal(size: Size) : Renderer, Input {
 
     override fun view(world: World) {
         val textGraphics = screen.newTextGraphics()
-        val statusX = screen.terminalSize.columns - statusSize + 2
+        val statusX = screen.terminalSize.columns - STATUS_SIZE + 2
         textGraphics.foregroundColor = WHITE_BRIGHT
         textGraphics.backgroundColor = BLACK_BRIGHT
         val speed = if (world.context.delay == 0L) "MAX" else "${(10L - (world.context.delay / 25L))}  "
@@ -84,7 +84,7 @@ class Terminal(size: Size) : Renderer, Input {
         if (!silent) {
             renderPopulation(world)
             (0 until screen.terminalSize.rows).forEach { y ->
-                (0 until screen.terminalSize.columns - statusSize).forEach { x ->
+                (0 until screen.terminalSize.columns - STATUS_SIZE).forEach { x ->
                     if (world.isKillarea(x, y)) {
                         if (world.isWall(x, y))
                             textGraphics.backgroundColor = RED_BRIGHT
@@ -129,7 +129,7 @@ class Terminal(size: Size) : Renderer, Input {
     }
 
     private fun TextGraphics.showResult(world: World, finish: Boolean) {
-        val statusX = screen.terminalSize.columns - statusSize + 2
+        val statusX = screen.terminalSize.columns - STATUS_SIZE + 2
         val rate = (100 * world.context.survivors) / world.context.blobs
         backgroundColor = BLACK_BRIGHT
         foregroundColor = if (finish) GREEN_BRIGHT else WHITE_BRIGHT
@@ -396,6 +396,6 @@ class Terminal(size: Size) : Renderer, Input {
 //    }
 
     companion object {
-        const val statusSize = 28
+        const val STATUS_SIZE = 28
     }
 }

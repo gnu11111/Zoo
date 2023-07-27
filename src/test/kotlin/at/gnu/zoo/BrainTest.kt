@@ -6,7 +6,7 @@ class BrainTest {
 
     @Test
     fun `create a brain`() {
-        val brain = Brain.randomBrain(Context(Zoo.version))
+        val brain = Brain.randomBrain(Context(Zoo.VERSION))
         val blob = Blob(brain)
         val actions = brain.think(World.randomWorld(), blob)
         brain.print()

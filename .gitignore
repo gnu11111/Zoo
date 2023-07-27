@@ -2,4 +2,5 @@
 /target/
 /.idea/
 /zoo.iml
+/zoo.jar
 /zoo.log

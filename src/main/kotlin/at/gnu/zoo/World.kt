@@ -197,7 +197,7 @@ class World(val context: Context) {
         const val EMPTY = 0
         const val WALL = -1
 
-        fun randomWorld(context: Context = Context(Zoo.version)): World {
+        fun randomWorld(context: Context = Context(Zoo.VERSION)): World {
             val world = World(context)
             world.init(List(context.tribes) { Population.randomPopulation(world, it + 1) })
             return world
