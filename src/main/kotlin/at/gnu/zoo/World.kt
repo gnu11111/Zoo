@@ -36,19 +36,15 @@ class World(val context: Context) {
 
     @Synchronized
     fun init(populations: List<Population>): World {
-        age = 0
-        oszillator = 0
-        oszillatorIncrement = -1
-        area.indices.forEach { y -> area[y].indices.forEach { x -> if (area[y][x] > EMPTY) area[y][x] = EMPTY } }
         this.populations = populations
-        populations.forEach { population -> population.blobs.forEach { area[it.position.y][it.position.x] = 1 } }
+        initAgeAndOszillator()
+        area.init(populations)
         return this
     }
 
     @Synchronized
     fun progress(): World {
-        age++
-        processOszillator()
+        processAgeAndOszillator()
         populations.forEach { population ->
             population.blobs.asSequence().filter { it.alive }.forEach { blob ->
                 blob.brain.think(this, blob).forEach { action -> action.apply(this, blob) }
@@ -108,10 +104,22 @@ class World(val context: Context) {
     fun freeSpots(): Int =
         area.sumOf { row -> row.count { it == EMPTY } }
 
-    private fun processOszillator() {
+    private fun initAgeAndOszillator() {
+        age = 0
+        oszillator = 0
+        oszillatorIncrement = -1
+    }
+
+    private fun processAgeAndOszillator() {
+        age++
         if ((oszillator >= 31) || (oszillator < 1))
             oszillatorIncrement = -oszillatorIncrement
         oszillator += oszillatorIncrement
+    }
+
+    private fun Array<IntArray>.init(populations: List<Population>) {
+        indices.forEach { y -> this[y].indices.forEach { x -> if (this[y][x] > EMPTY) this[y][x] = EMPTY } }
+        populations.forEach { population -> population.blobs.forEach { area[it.position.y][it.position.x] = 1 } }
     }
 
     private fun Array<IntArray>.createWalls(walls: Walls) {
